@@ -23,6 +23,7 @@ from services.regulatory_intelligence.routes import (
     regulations,
     requirements,
     ingestion,
+    pipeline,
 )
 
 # Setup logging
@@ -152,6 +153,12 @@ app.include_router(
     ingestion.router,
     prefix="/api/v1/ingest",
     tags=["Ingestion"],
+)
+
+app.include_router(
+    pipeline.router,
+    prefix="/api/v1/pipeline",
+    tags=["Pipeline"],
 )
 
 
