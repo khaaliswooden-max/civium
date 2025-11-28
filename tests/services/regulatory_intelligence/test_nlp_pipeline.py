@@ -149,7 +149,7 @@ class TestTextPreprocessor:
 
     def test_unicode_normalization(self, preprocessor: TextPreprocessor) -> None:
         """Test Unicode character normalization."""
-        text = "Smart "quotes" and — dashes"
+        text = 'Smart "quotes" and — dashes'
         result = preprocessor._normalize_unicode(text)
 
         assert '"' in result  # Normalized quotes
