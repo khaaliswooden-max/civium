@@ -1,0 +1,294 @@
+# ==============================================================================
+# CIVIUM - Docker Compose Development Environment
+# ==============================================================================
+# Version: 0.1.0
+# 
+# Usage:
+#   docker-compose up -d          # Start all services
+#   docker-compose down           # Stop all services
+#   docker-compose logs -f        # View logs
+#   docker-compose ps             # Check status
+# ==============================================================================
+
+services:
+  # ============================================================================
+  # PostgreSQL - Entity Data & Assessments
+  # ============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: civium-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: civium
+      POSTGRES_PASSWORD: civium_dev_password
+      POSTGRES_DB: civium
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U civium -d civium"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - civium-network
+
+  # ============================================================================
+  # Neo4j - Compliance Knowledge Graph
+  # ============================================================================
+  neo4j:
+    image: neo4j:5.25-community
+    container_name: civium-neo4j
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: neo4j/civium_graph_password
+      NEO4J_PLUGINS: '["apoc", "graph-data-science"]'
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*,gds.*"
+      NEO4J_dbms_security_procedures_allowlist: "apoc.*,gds.*"
+      NEO4J_server_memory_heap_initial__size: 512m
+      NEO4J_server_memory_heap_max__size: 1G
+      NEO4J_server_memory_pagecache_size: 512m
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - ./infrastructure/docker/neo4j/init.cypher:/var/lib/neo4j/import/init.cypher:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7474"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - civium-network
+
+  # ============================================================================
+  # MongoDB - Regulatory Documents
+  # ============================================================================
+  mongodb:
+    image: mongo:7.0
+    container_name: civium-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: civium
+      MONGO_INITDB_ROOT_PASSWORD: civium_mongo_password
+      MONGO_INITDB_DATABASE: civium_regulations
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./infrastructure/docker/mongodb/init.js:/docker-entrypoint-initdb.d/init.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - civium-network
+
+  # ============================================================================
+  # Redis - Caching & Session Management
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: civium-redis
+    restart: unless-stopped
+    command: redis-server --requirepass civium_redis_password --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "civium_redis_password", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - civium-network
+
+  # ============================================================================
+  # InfluxDB - Time-Series Compliance Metrics
+  # ============================================================================
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: civium-influxdb
+    restart: unless-stopped
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: civium
+      DOCKER_INFLUXDB_INIT_PASSWORD: civium_influx_password
+      DOCKER_INFLUXDB_INIT_ORG: civium
+      DOCKER_INFLUXDB_INIT_BUCKET: compliance_metrics
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: civium_influx_token_change_me
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - civium-network
+
+  # ============================================================================
+  # Zookeeper - Kafka Coordination
+  # ============================================================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.7.1
+    container_name: civium-zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - civium-network
+
+  # ============================================================================
+  # Kafka - Event Streaming
+  # ============================================================================
+  kafka:
+    image: confluentinc/cp-kafka:7.7.1
+    container_name: civium-kafka
+    restart: unless-stopped
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - civium-network
+
+  # ============================================================================
+  # Kafka UI - Monitoring (Optional, for development)
+  # ============================================================================
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: civium-kafka-ui
+    restart: unless-stopped
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_CLUSTERS_0_NAME: civium-local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    ports:
+      - "8080:8080"
+    networks:
+      - civium-network
+    profiles:
+      - dev-tools
+
+  # ============================================================================
+  # Mongo Express - MongoDB UI (Optional, for development)
+  # ============================================================================
+  mongo-express:
+    image: mongo-express:latest
+    container_name: civium-mongo-express
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: civium
+      ME_CONFIG_MONGODB_ADMINPASSWORD: civium_mongo_password
+      ME_CONFIG_MONGODB_URL: mongodb://civium:civium_mongo_password@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
+    ports:
+      - "8081:8081"
+    networks:
+      - civium-network
+    profiles:
+      - dev-tools
+
+  # ============================================================================
+  # RedisInsight - Redis UI (Optional, for development)
+  # ============================================================================
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: civium-redisinsight
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight_data:/data
+    networks:
+      - civium-network
+    profiles:
+      - dev-tools
+
+# ==============================================================================
+# Networks
+# ==============================================================================
+networks:
+  civium-network:
+    driver: bridge
+    name: civium-network
+
+# ==============================================================================
+# Volumes
+# ==============================================================================
+volumes:
+  postgres_data:
+    name: civium-postgres-data
+  neo4j_data:
+    name: civium-neo4j-data
+  neo4j_logs:
+    name: civium-neo4j-logs
+  mongodb_data:
+    name: civium-mongodb-data
+  redis_data:
+    name: civium-redis-data
+  influxdb_data:
+    name: civium-influxdb-data
+  influxdb_config:
+    name: civium-influxdb-config
+  zookeeper_data:
+    name: civium-zookeeper-data
+  zookeeper_logs:
+    name: civium-zookeeper-logs
+  kafka_data:
+    name: civium-kafka-data
+  redisinsight_data:
+    name: civium-redisinsight-data
+
