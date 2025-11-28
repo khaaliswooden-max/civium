@@ -19,7 +19,14 @@ from shared.database.neo4j import Neo4jClient
 from shared.database.redis import RedisClient
 from shared.models.common import HealthResponse
 
-from services.compliance_graph.routes import graph, entities, conflicts
+from services.compliance_graph.routes import (
+    graph,
+    entities,
+    conflicts,
+    compliance,
+    paths,
+    ingestion,
+)
 
 # Setup logging
 setup_logging(
@@ -147,6 +154,24 @@ app.include_router(
     conflicts.router,
     prefix="/api/v1/conflicts",
     tags=["Conflict Detection"],
+)
+
+app.include_router(
+    compliance.router,
+    prefix="/api/v1/compliance",
+    tags=["Compliance Status"],
+)
+
+app.include_router(
+    paths.router,
+    prefix="/api/v1/paths",
+    tags=["Path Discovery"],
+)
+
+app.include_router(
+    ingestion.router,
+    prefix="/api/v1/ingestion",
+    tags=["Graph Ingestion"],
 )
 
 
