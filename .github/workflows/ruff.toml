@@ -1,0 +1,44 @@
+# Ruff configuration for Civium
+# See: https://docs.astral.sh/ruff/
+
+# Enable specific rule sets
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+]
+
+# Ignore rules that are too strict for initial development
+ignore = [
+    "E501",   # line too long (let formatter handle)
+    "E402",   # module level import not at top of file
+    "B008",   # function calls in argument defaults
+]
+
+# Exclude directories
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "*.pyc",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+    "*.egg-info",
+    "node_modules",
+]
+
+line-length = 100
+target-version = "py312"
+
+# Per-file configuration
+[per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"tests/**/*.py" = ["E501"]
+
+[isort]
+known-first-party = ["services", "shared"]

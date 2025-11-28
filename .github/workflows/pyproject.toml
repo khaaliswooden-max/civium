@@ -1,0 +1,196 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "civium"
+version = "0.1.0"
+description = "Recursive Self-Improving Global Compliance World Engine"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "Proprietary"}
+authors = [
+    {name = "Khaalis Wooden", email = "khaalis@visionblox.com"}
+]
+keywords = ["compliance", "regulation", "governance", "ai", "blockchain"]
+
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.26.0",
+    "aiohttp>=3.9.0",
+    
+    # Database drivers
+    "asyncpg>=0.29.0",
+    "motor>=3.3.0",
+    "neo4j>=5.16.0",
+    "redis>=5.0.0",
+    "influxdb-client>=1.39.0",
+    
+    # Message queues
+    "aiokafka>=0.10.0",
+    "aio-pika>=9.3.0",
+    
+    # Authentication & Security
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-multipart>=0.0.6",
+    
+    # AI/ML
+    "langchain>=0.1.0",
+    "langchain-community>=0.0.10",
+    "openai>=1.6.0",
+    "anthropic>=0.8.0",
+    "transformers>=4.36.0",
+    "torch>=2.1.0",
+    
+    # Utilities
+    "structlog>=24.1.0",
+    "tenacity>=8.2.0",
+    "prometheus-client>=0.19.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.9",
+    "mypy>=1.8.0",
+    "pytest>=7.4.3",
+    "pytest-asyncio>=0.23.2",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "httpx>=0.26.0",
+    "faker>=22.0.0",
+    "hypothesis>=6.92.0",
+    "bandit>=1.7.6",
+    "pre-commit>=3.6.0",
+]
+
+test = [
+    "pytest>=7.4.3",
+    "pytest-asyncio>=0.23.2",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "httpx>=0.26.0",
+]
+
+[tool.setuptools]
+packages = ["services", "shared"]
+
+[tool.ruff]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) by default
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "DTZ", # flake8-datetimez
+    "T10", # flake8-debugger
+    "ISC", # flake8-implicit-str-concat
+    "ICN", # flake8-import-conventions
+    "PIE", # flake8-pie
+    "PT",  # flake8-pytest-style
+    "Q",   # flake8-quotes
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+]
+
+# Ignore specific rules that are too strict for initial development
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults
+    "C901",   # too complex
+    "W191",   # indentation contains tabs
+    "B904",   # raise from
+    "B006",   # mutable default argument
+]
+
+# Exclude specific directories
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "*.pyc",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401", "F403"]  # Allow unused imports in __init__.py
+"tests/**/*.py" = ["ARG", "PT"]   # More lenient for tests
+
+[tool.ruff.isort]
+known-first-party = ["services", "shared"]
+force-sort-within-sections = true
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Set to true once all code is typed
+ignore_missing_imports = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = false  # Too noisy initially
+check_untyped_defs = true
+strict_optional = false  # Too strict for initial development
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = false
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.coverage.run]
+source = ["services", "shared"]
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", "venv"]
+skips = ["B101"]  # Allow assert statements
