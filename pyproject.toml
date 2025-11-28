@@ -133,6 +133,16 @@ blockchain = [
     
     # Zero-Knowledge Proofs (Python bindings)
     "py-ecc>=7.0.0",
+    "poseidon-py>=0.1.4",
+]
+
+zk = [
+    # ZK-SNARK support
+    "py-ecc>=7.0.0",
+    "poseidon-py>=0.1.4",
+    
+    # Cryptographic utilities
+    "pycryptodome>=3.20.0",
 ]
 
 [project.urls]

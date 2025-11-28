@@ -1,0 +1,36 @@
+{
+  "name": "@civium/zk-circuits",
+  "version": "1.0.0",
+  "description": "ZK-SNARK circuits for Civium compliance verification",
+  "private": true,
+  "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "setup:threshold": "bash scripts/setup.sh compliance_threshold",
+    "setup:range": "bash scripts/setup.sh range_proof",
+    "setup:tier": "bash scripts/setup.sh tier_membership",
+    "prove": "node scripts/prove.js",
+    "benchmark": "node scripts/benchmark.js",
+    "test": "node test/test_vectors.js",
+    "clean": "rm -rf build ptau"
+  },
+  "dependencies": {
+    "snarkjs": "^0.7.4",
+    "circomlib": "^2.0.5"
+  },
+  "devDependencies": {
+    "circom": "^2.1.9"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "zk-snark",
+    "zero-knowledge",
+    "compliance",
+    "circom",
+    "groth16"
+  ],
+  "author": "Civium",
+  "license": "MIT"
+}
+

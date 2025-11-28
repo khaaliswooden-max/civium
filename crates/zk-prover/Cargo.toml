@@ -1,0 +1,89 @@
+[package]
+name = "civium-zk-prover"
+version = "0.1.0"
+edition = "2021"
+authors = ["Civium <engineering@civium.io>"]
+description = "High-performance ZK-SNARK proof generation for Civium compliance verification"
+license = "MIT"
+repository = "https://github.com/civium/civium"
+keywords = ["zk-snark", "groth16", "compliance", "zero-knowledge"]
+categories = ["cryptography", "compliance"]
+rust-version = "1.75"
+
+[lib]
+name = "civium_zk_prover"
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["parallel"]
+parallel = ["rayon", "ark-std/parallel"]
+wasm = ["wasm-bindgen", "getrandom/js"]
+python = ["pyo3"]
+
+[dependencies]
+# Arkworks cryptography stack
+ark-ff = "0.4"
+ark-ec = "0.4"
+ark-bn254 = "0.4"
+ark-groth16 = "0.4"
+ark-snark = "0.4"
+ark-serialize = "0.4"
+ark-std = "0.4"
+ark-relations = "0.4"
+ark-r1cs-std = "0.4"
+ark-crypto-primitives = { version = "0.4", features = ["snark", "sponge"] }
+
+# Circuit building
+ark-circom = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+base64 = "0.22"
+
+# Parallelism
+rayon = { version = "1.10", optional = true }
+
+# Error handling
+thiserror = "2.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+
+# Random number generation
+rand = "0.8"
+getrandom = { version = "0.2", default-features = false }
+
+# WASM support
+wasm-bindgen = { version = "0.2", optional = true }
+
+# Python bindings
+pyo3 = { version = "0.22", features = ["extension-module"], optional = true }
+
+# Poseidon hash (same as circomlib)
+poseidon-rs = "0.1"
+num-bigint = { version = "0.4", features = ["serde"] }
+num-traits = "0.2"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+tempfile = "3.13"
+tokio = { version = "1.41", features = ["rt-multi-thread", "macros"] }
+
+[[bench]]
+name = "proving"
+harness = false
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+debug = false
+strip = true
+
+[profile.bench]
+lto = true
+opt-level = 3
+
