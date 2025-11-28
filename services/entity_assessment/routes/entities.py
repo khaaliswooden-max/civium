@@ -26,10 +26,14 @@ from shared.models.entity import (
     ComplianceTier,
 )
 from shared.models.common import PaginatedResponse
+from services.entity_assessment.services.tier import TierService
 
 logger = get_logger(__name__)
 
 router = APIRouter()
+
+# Initialize tier service
+tier_service = TierService()
 
 
 @router.get("", response_model=PaginatedResponse[EntitySummary])
@@ -375,26 +379,24 @@ def determine_tier(entity_data: EntityCreate) -> ComplianceTier:
     """
     Determine initial compliance tier based on entity attributes.
 
-    Rules:
-    - Large entities or those in regulated sectors → Advanced
-    - Medium entities or multiple jurisdictions → Standard
-    - Others → Basic
+    Uses the TierService for comprehensive tier assignment.
     """
-    regulated_sectors = {"FINANCE", "HEALTH", "ENERGY", "GOVERNMENT"}
+    recommendation = tier_service.determine_tier(
+        entity_type=entity_data.entity_type.value,
+        size=entity_data.size,
+        employee_count=getattr(entity_data, 'employee_count', None),
+        annual_revenue=getattr(entity_data, 'annual_revenue', None),
+        jurisdictions=entity_data.jurisdictions,
+        sectors=entity_data.sectors,
+        risk_factors=entity_data.metadata.get("risk_factors", {}) if entity_data.metadata else {},
+    )
 
-    # Check for regulated sectors
-    if any(s.upper() in regulated_sectors for s in entity_data.sectors):
-        return ComplianceTier.ADVANCED
+    logger.info(
+        "entity_tier_determined",
+        tier=recommendation.recommended_tier.value,
+        confidence=recommendation.confidence,
+        risk_level=recommendation.risk_level.value,
+    )
 
-    # Check size
-    if entity_data.size == "large":
-        return ComplianceTier.ADVANCED
-    elif entity_data.size == "medium":
-        return ComplianceTier.STANDARD
-
-    # Check multi-jurisdictional
-    if len(entity_data.jurisdictions) > 2:
-        return ComplianceTier.STANDARD
-
-    return ComplianceTier.BASIC
+    return ComplianceTier(recommendation.recommended_tier.value)
 

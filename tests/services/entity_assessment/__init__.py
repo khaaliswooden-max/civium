@@ -1,0 +1,4 @@
+"""
+Entity Assessment Service Tests
+"""
+

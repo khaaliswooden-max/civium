@@ -19,7 +19,7 @@ from shared.database.postgres import PostgresClient
 from shared.database.redis import RedisClient
 from shared.models.common import HealthResponse
 
-from services.entity_assessment.routes import entities, assessments, scores
+from services.entity_assessment.routes import entities, assessments, scores, tiers
 
 # Setup logging
 setup_logging(
@@ -147,6 +147,12 @@ app.include_router(
     scores.router,
     prefix="/api/v1/scores",
     tags=["Compliance Scores"],
+)
+
+app.include_router(
+    tiers.router,
+    prefix="/api/v1/tiers",
+    tags=["Compliance Tiers"],
 )
 
 
