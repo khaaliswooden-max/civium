@@ -14,6 +14,7 @@ from typing import Any
 from shared.database.neo4j import Neo4jClient
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -369,4 +370,3 @@ class RequirementQueryEngine:
 
         results = await Neo4jClient.run_query(query)
         return {r["jurisdiction"]: r["count"] for r in results}
-

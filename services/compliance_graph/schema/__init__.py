@@ -7,7 +7,7 @@ Neo4j schema definitions for the Civium Compliance Graph.
 Node Types:
 - Requirement: Regulatory requirements
 - Regulation: Source regulations
-- Entity: Regulated entities  
+- Entity: Regulated entities
 - ComplianceState: Entity compliance status
 - Jurisdiction: Geographic jurisdictions
 - Sector: Industry sectors
@@ -25,30 +25,31 @@ Relationships:
 Version: 0.1.0
 """
 
-from services.compliance_graph.schema.nodes import (
-    RequirementNode,
-    RegulationNode,
-    EntityNode,
-    ComplianceStateNode,
-    JurisdictionNode,
-    SectorNode,
-    EvidenceNode,
-)
-from services.compliance_graph.schema.relationships import (
-    RelationshipType,
-    BelongsTo,
-    AppliesTo,
-    HasState,
-    Satisfies,
-    DependsOn,
-    ConflictsWith,
-    Supersedes,
-)
 from services.compliance_graph.schema.constraints import (
     SCHEMA_CONSTRAINTS,
     SCHEMA_INDEXES,
     apply_schema,
 )
+from services.compliance_graph.schema.nodes import (
+    ComplianceStateNode,
+    EntityNode,
+    EvidenceNode,
+    JurisdictionNode,
+    RegulationNode,
+    RequirementNode,
+    SectorNode,
+)
+from services.compliance_graph.schema.relationships import (
+    AppliesTo,
+    BelongsTo,
+    ConflictsWith,
+    DependsOn,
+    HasState,
+    RelationshipType,
+    Satisfies,
+    Supersedes,
+)
+
 
 __all__ = [
     # Nodes
@@ -73,4 +74,3 @@ __all__ = [
     "SCHEMA_INDEXES",
     "apply_schema",
 ]
-

@@ -7,19 +7,20 @@ API endpoints for regulatory document ingestion and parsing.
 Version: 0.1.0
 """
 
+import uuid
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
-import uuid
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, Field, HttpUrl
 
-from shared.auth import get_current_user, User
+from shared.auth import User, get_current_user
 from shared.database.mongodb import get_mongodb
+from shared.llm import get_llm_provider
 from shared.logging import get_logger
-from shared.llm import get_llm_provider, LLMMessage
+
 
 logger = get_logger(__name__)
 
@@ -130,10 +131,12 @@ async def start_ingestion(
     )
 
     # Store job in MongoDB
-    await db.ingestion_jobs.insert_one({
-        "_id": job_id,
-        **job.model_dump(mode="json"),
-    })
+    await db.ingestion_jobs.insert_one(
+        {
+            "_id": job_id,
+            **job.model_dump(mode="json"),
+        }
+    )
 
     # Start background processing
     background_tasks.add_task(
@@ -323,7 +326,7 @@ async def process_ingestion_job(
 
         # Store requirements
         for i, req in enumerate(requirements):
-            req_id = f"REQ-{regulation_id[4:]}-{i+1}"
+            req_id = f"REQ-{regulation_id[4:]}-{i + 1}"
             req_doc = {
                 "_id": req_id,
                 "regulation_id": regulation_id,
@@ -452,4 +455,3 @@ Return a JSON array with objects containing: article_ref, text, tier, verificati
     except Exception as e:
         logger.error("llm_extraction_failed", error=str(e))
         return []
-

@@ -1,8 +1,6 @@
 # ==============================================================================
 # CIVIUM Pre-commit Configuration
 # ==============================================================================
-# Rename this file to .pre-commit-config.yaml
-# 
 # Install: pip install pre-commit && pre-commit install
 # Run manually: pre-commit run --all-files
 # ==============================================================================

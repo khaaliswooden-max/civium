@@ -12,21 +12,18 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
-from shared.auth import get_current_user, User
-from shared.logging import get_logger
-
-from services.compliance_graph.ingestion.rml_ingester import (
-    RMLIngester,
-    IngestionOptions,
-    IngestionResult,
-)
 from services.compliance_graph.ingestion.batch_ingester import (
-    BatchIngester,
-    BatchResult,
-    sync_regulations_to_graph,
     clear_graph,
+    sync_regulations_to_graph,
+)
+from services.compliance_graph.ingestion.rml_ingester import (
+    IngestionOptions,
+    RMLIngester,
 )
 from services.compliance_graph.schema.constraints import apply_schema, drop_schema, get_schema_info
+from shared.auth import User, get_current_user
+from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -132,7 +129,7 @@ async def ingest_rml_document(
         logger.error("rml_ingestion_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Ingestion failed: {str(e)}",
+            detail=f"Ingestion failed: {e!s}",
         )
 
 
@@ -173,7 +170,7 @@ async def sync_to_graph(
         logger.error("graph_sync_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Sync failed: {str(e)}",
+            detail=f"Sync failed: {e!s}",
         )
 
 
@@ -222,7 +219,7 @@ async def apply_graph_schema(
         logger.error("schema_apply_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Schema application failed: {str(e)}",
+            detail=f"Schema application failed: {e!s}",
         )
 
 
@@ -243,7 +240,7 @@ async def get_current_schema(
         logger.error("schema_info_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get schema info: {str(e)}",
+            detail=f"Failed to get schema info: {e!s}",
         )
 
 
@@ -278,7 +275,7 @@ async def drop_graph_schema(
         logger.error("schema_drop_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Schema drop failed: {str(e)}",
+            detail=f"Schema drop failed: {e!s}",
         )
 
 
@@ -313,6 +310,5 @@ async def clear_graph_data(
         logger.error("graph_clear_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Graph clear failed: {str(e)}",
+            detail=f"Graph clear failed: {e!s}",
         )
-

@@ -24,6 +24,7 @@ import httpx
 
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -156,7 +157,9 @@ class DocumentExtractor:
                 return DocumentFormat.DOCX
 
         # Check content for HTML markers
-        content_str = content if isinstance(content, str) else content.decode("utf-8", errors="ignore")
+        content_str = (
+            content if isinstance(content, str) else content.decode("utf-8", errors="ignore")
+        )
         if "<html" in content_str.lower()[:1000] or "<!doctype html" in content_str.lower()[:1000]:
             return DocumentFormat.HTML
 
@@ -326,7 +329,7 @@ class DocumentExtractor:
                     if page_text:
                         text_parts.append(f"--- Page {i + 1} ---\n{page_text}")
                 except Exception as e:
-                    warnings.append(f"Failed to extract page {i + 1}: {str(e)}")
+                    warnings.append(f"Failed to extract page {i + 1}: {e!s}")
 
             text = "\n\n".join(text_parts)
 
@@ -339,7 +342,7 @@ class DocumentExtractor:
             text = "[PDF extraction requires pypdf package]"
         except Exception as e:
             logger.error("pdf_extraction_error", error=str(e))
-            warnings.append(f"PDF extraction error: {str(e)}")
+            warnings.append(f"PDF extraction error: {e!s}")
             text = ""
 
         return ExtractionResult(
@@ -375,8 +378,10 @@ class DocumentExtractor:
                 element.decompose()
 
             # Find main content area if present
-            main_content = soup.find("main") or soup.find("article") or soup.find(
-                "div", {"class": re.compile(r"content|main|body", re.I)}
+            main_content = (
+                soup.find("main")
+                or soup.find("article")
+                or soup.find("div", {"class": re.compile(r"content|main|body", re.I)})
             )
 
             if main_content:
@@ -398,7 +403,7 @@ class DocumentExtractor:
 
         except Exception as e:
             logger.error("html_extraction_error", error=str(e))
-            warnings.append(f"HTML extraction error: {str(e)}")
+            warnings.append(f"HTML extraction error: {e!s}")
             text = content
 
         return ExtractionResult(
@@ -471,7 +476,7 @@ class DocumentExtractor:
             text = "[DOCX extraction requires python-docx package]"
         except Exception as e:
             logger.error("docx_extraction_error", error=str(e))
-            warnings.append(f"DOCX extraction error: {str(e)}")
+            warnings.append(f"DOCX extraction error: {e!s}")
             text = ""
 
         return ExtractionResult(
@@ -480,4 +485,3 @@ class DocumentExtractor:
             title=title,
             warnings=warnings,
         )
-

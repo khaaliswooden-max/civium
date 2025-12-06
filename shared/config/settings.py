@@ -10,7 +10,6 @@ Version: 0.1.0
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
 
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -262,9 +261,7 @@ class CORSSettings(BaseSettings):
 class ServicePorts(BaseSettings):
     """Service port configuration."""
 
-    regulatory_intelligence: int = Field(
-        default=8001, alias="REGULATORY_INTELLIGENCE_PORT"
-    )
+    regulatory_intelligence: int = Field(default=8001, alias="REGULATORY_INTELLIGENCE_PORT")
     compliance_graph: int = Field(default=8002, alias="COMPLIANCE_GRAPH_PORT")
     entity_assessment: int = Field(default=8003, alias="ENTITY_ASSESSMENT_PORT")
     verification: int = Field(default=8004, alias="VERIFICATION_PORT")
@@ -358,4 +355,3 @@ def get_settings() -> Settings:
         Settings: Application settings singleton.
     """
     return Settings()
-

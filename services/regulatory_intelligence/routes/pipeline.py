@@ -24,17 +24,17 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, s
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, Field, HttpUrl
 
-from shared.auth import get_current_user, User
-from shared.database.mongodb import get_mongodb
+from services.regulatory_intelligence.nlp.chunking import ChunkingStrategy
+from services.regulatory_intelligence.nlp.embeddings import EmbeddingService
+from services.regulatory_intelligence.nlp.extraction import DocumentExtractor
+from services.regulatory_intelligence.nlp.parser import RegulatoryParser
+from services.regulatory_intelligence.nlp.preprocessing import TextPreprocessor
+from services.regulatory_intelligence.nlp.rml import RMLGenerator
+from shared.auth import User, get_current_user
 from shared.database.kafka import KafkaClient, Topics
+from shared.database.mongodb import get_mongodb
 from shared.logging import get_logger
 
-from services.regulatory_intelligence.nlp.extraction import DocumentExtractor
-from services.regulatory_intelligence.nlp.preprocessing import TextPreprocessor
-from services.regulatory_intelligence.nlp.chunking import DocumentChunker, ChunkingStrategy
-from services.regulatory_intelligence.nlp.parser import RegulatoryParser
-from services.regulatory_intelligence.nlp.rml import RMLGenerator, RMLDocument
-from services.regulatory_intelligence.nlp.embeddings import EmbeddingService
 
 logger = get_logger(__name__)
 
@@ -178,14 +178,16 @@ async def run_pipeline(
     )
 
     # Store job in MongoDB
-    await db.pipeline_jobs.insert_one({
-        "_id": job_id,
-        "status": job_status.status.value,
-        "progress": job_status.progress,
-        "request": request.model_dump(mode="json"),
-        "user_id": current_user.id,
-        "created_at": now,
-    })
+    await db.pipeline_jobs.insert_one(
+        {
+            "_id": job_id,
+            "status": job_status.status.value,
+            "progress": job_status.progress,
+            "request": request.model_dump(mode="json"),
+            "user_id": current_user.id,
+            "created_at": now,
+        }
+    )
 
     # Start background processing
     background_tasks.add_task(
@@ -320,7 +322,10 @@ async def execute_pipeline(
         if request.source_url:
             extraction_result = await extractor.extract_from_url(str(request.source_url))
         else:
-            from services.regulatory_intelligence.nlp.extraction import ExtractionResult, DocumentFormat
+            from services.regulatory_intelligence.nlp.extraction import (
+                DocumentFormat,
+                ExtractionResult,
+            )
 
             extraction_result = ExtractionResult(
                 content=request.text_content or "",
@@ -483,7 +488,9 @@ async def execute_pipeline(
                     "monetary_max": req.penalty_monetary_max,
                     "formula": req.penalty_formula,
                     "imprisonment_max": req.penalty_imprisonment_max,
-                } if req.penalty_monetary_max or req.penalty_formula else None,
+                }
+                if req.penalty_monetary_max or req.penalty_formula
+                else None,
                 "parsing_metadata": {
                     "confidence": req.confidence,
                     "notes": req.parsing_notes,
@@ -575,4 +582,3 @@ async def execute_pipeline(
                 }
             },
         )
-

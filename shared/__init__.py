@@ -22,10 +22,10 @@ __author__ = "Civium Team"
 from shared.config import settings
 from shared.logging import get_logger, setup_logging
 
-__all__ = [
-    "settings",
-    "get_logger",
-    "setup_logging",
-    "__version__",
-]
 
+__all__ = [
+    "__version__",
+    "get_logger",
+    "settings",
+    "setup_logging",
+]

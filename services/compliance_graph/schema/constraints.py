@@ -12,6 +12,7 @@ from typing import Any
 from shared.database.neo4j import Neo4jClient
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -187,10 +188,12 @@ async def apply_schema() -> dict[str, Any]:
             error_msg = str(e)
             # Ignore "already exists" errors
             if "already exists" not in error_msg.lower():
-                results["constraints_failed"].append({
-                    "name": constraint["name"],
-                    "error": error_msg,
-                })
+                results["constraints_failed"].append(
+                    {
+                        "name": constraint["name"],
+                        "error": error_msg,
+                    }
+                )
                 logger.warning(
                     "constraint_failed",
                     name=constraint["name"],
@@ -210,10 +213,12 @@ async def apply_schema() -> dict[str, Any]:
             error_msg = str(e)
             # Ignore "already exists" errors
             if "already exists" not in error_msg.lower():
-                results["indexes_failed"].append({
-                    "name": index["name"],
-                    "error": error_msg,
-                })
+                results["indexes_failed"].append(
+                    {
+                        "name": index["name"],
+                        "error": error_msg,
+                    }
+                )
                 logger.warning(
                     "index_failed",
                     name=index["name"],
@@ -296,4 +301,3 @@ async def get_schema_info() -> dict[str, Any]:
         "constraints": constraints,
         "indexes": indexes,
     }
-

@@ -15,22 +15,23 @@ Workflows:
 Version: 0.1.0
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
-import uuid
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.logging import get_logger
 from services.entity_assessment.models.assessment import (
     AssessmentStatus,
     AssessmentType,
     ItemStatus,
 )
-from services.entity_assessment.services.score import ScoreService, ScoreResult
+from services.entity_assessment.services.score import ScoreService
+from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -175,21 +176,24 @@ class AssessmentService:
             )
         """)
 
-        await db.execute(query, {
-            "id": assessment_id,
-            "entity_id": entity_id,
-            "assessment_type": assessment_type.value,
-            "status": AssessmentStatus.DRAFT.value,
-            "jurisdictions": jurisdictions or [],
-            "sectors": sectors or [],
-            "regulation_ids": regulation_ids or [],
-            "assessment_date": now,
-            "due_date": due_date,
-            "assessor_id": assessor_id,
-            "assessor_name": assessor_name,
-            "created_at": now,
-            "updated_at": now,
-        })
+        await db.execute(
+            query,
+            {
+                "id": assessment_id,
+                "entity_id": entity_id,
+                "assessment_type": assessment_type.value,
+                "status": AssessmentStatus.DRAFT.value,
+                "jurisdictions": jurisdictions or [],
+                "sectors": sectors or [],
+                "regulation_ids": regulation_ids or [],
+                "assessment_date": now,
+                "due_date": due_date,
+                "assessor_id": assessor_id,
+                "assessor_name": assessor_name,
+                "created_at": now,
+                "updated_at": now,
+            },
+        )
 
         logger.info(
             "assessment_created",
@@ -262,18 +266,21 @@ class AssessmentService:
                 )
             """)
 
-            await db.execute(query, {
-                "id": item_id,
-                "assessment_id": assessment_id,
-                "requirement_id": req.get("requirement_id"),
-                "regulation_id": req.get("regulation_id"),
-                "requirement_text": req.get("text"),
-                "requirement_tier": req.get("tier", "basic"),
-                "article_ref": req.get("article_ref"),
-                "status": ItemStatus.PENDING.value,
-                "created_at": now,
-                "updated_at": now,
-            })
+            await db.execute(
+                query,
+                {
+                    "id": item_id,
+                    "assessment_id": assessment_id,
+                    "requirement_id": req.get("requirement_id"),
+                    "regulation_id": req.get("regulation_id"),
+                    "requirement_text": req.get("text"),
+                    "requirement_tier": req.get("tier", "basic"),
+                    "article_ref": req.get("article_ref"),
+                    "status": ItemStatus.PENDING.value,
+                    "created_at": now,
+                    "updated_at": now,
+                },
+            )
 
             items_created += 1
 
@@ -328,14 +335,17 @@ class AssessmentService:
               )
         """)
 
-        result = await db.execute(query, {
-            "any_jurisdiction": not jurisdictions,
-            "jurisdictions": jurisdictions or [],
-            "any_sector": not sectors,
-            "sectors": sectors or [],
-            "any_regulation": not regulation_ids,
-            "regulation_ids": regulation_ids or [],
-        })
+        result = await db.execute(
+            query,
+            {
+                "any_jurisdiction": not jurisdictions,
+                "jurisdictions": jurisdictions or [],
+                "any_sector": not sectors,
+                "sectors": sectors or [],
+                "any_regulation": not regulation_ids,
+                "regulation_ids": regulation_ids or [],
+            },
+        )
 
         return [
             {
@@ -387,17 +397,20 @@ class AssessmentService:
             WHERE id = :item_id
         """)
 
-        await db.execute(query, {
-            "item_id": item_id,
-            "status": status.value,
-            "score": score,
-            "finding": finding,
-            "evidence_ids": evidence_ids or [],
-            "assessed_by": assessed_by,
-            "assessed_at": now,
-            "notes": notes,
-            "updated_at": now,
-        })
+        await db.execute(
+            query,
+            {
+                "item_id": item_id,
+                "status": status.value,
+                "score": score,
+                "finding": finding,
+                "evidence_ids": evidence_ids or [],
+                "assessed_by": assessed_by,
+                "assessed_at": now,
+                "notes": notes,
+                "updated_at": now,
+            },
+        )
 
         # Get assessment ID and update counts
         result = await db.execute(
@@ -454,9 +467,7 @@ class AssessmentService:
 
         # Validate transition
         if not self.workflow.can_transition(current_status, action):
-            raise ValueError(
-                f"Invalid transition: {current_status.value} -> {action.value}"
-            )
+            raise ValueError(f"Invalid transition: {current_status.value} -> {action.value}")
 
         new_status = self.workflow.get_next_status(current_status, action)
         if not new_status:
@@ -478,26 +489,30 @@ class AssessmentService:
             update_fields["started_at"] = now
 
         elif action == WorkflowAction.APPROVE:
-            query_parts.extend([
-                "completed_at = :completed_at",
-                "approver_id = :approver_id",
-                "approver_name = :approver_name",
-            ])
+            query_parts.extend(
+                [
+                    "completed_at = :completed_at",
+                    "approver_id = :approver_id",
+                    "approver_name = :approver_name",
+                ]
+            )
             update_fields["completed_at"] = now
             update_fields["approver_id"] = user_id
             update_fields["approver_name"] = user_name
 
         elif action == WorkflowAction.REJECT:
-            query_parts.extend([
-                "reviewer_id = :reviewer_id",
-                "reviewer_name = :reviewer_name",
-            ])
+            query_parts.extend(
+                [
+                    "reviewer_id = :reviewer_id",
+                    "reviewer_name = :reviewer_name",
+                ]
+            )
             update_fields["reviewer_id"] = user_id
             update_fields["reviewer_name"] = user_name
 
         query = text(f"""
             UPDATE core.assessments
-            SET {', '.join(query_parts)}
+            SET {", ".join(query_parts)}
             WHERE id = :assessment_id
         """)
 
@@ -683,4 +698,3 @@ class AssessmentService:
             "due_date": row.due_date.isoformat() if row.due_date else None,
             "completed_at": row.completed_at.isoformat() if row.completed_at else None,
         }
-

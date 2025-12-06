@@ -11,9 +11,9 @@ Supported providers:
 
 Usage:
     from shared.llm import get_llm_provider, LLMMessage
-    
+
     provider = get_llm_provider()
-    
+
     response = await provider.complete(
         messages=[
             LLMMessage(role="system", content="You are a regulatory expert."),
@@ -23,16 +23,17 @@ Usage:
     print(response.content)
 """
 
+from shared.llm.claude import ClaudeProvider
+from shared.llm.ollama import OllamaProvider
 from shared.llm.provider import (
-    LLMProvider,
     LLMMessage,
+    LLMProvider,
     LLMResponse,
     LLMUsage,
     get_llm_provider,
     set_llm_provider,
 )
-from shared.llm.claude import ClaudeProvider
-from shared.llm.ollama import OllamaProvider
+
 
 __all__ = [
     # Base
@@ -46,4 +47,3 @@ __all__ = [
     "ClaudeProvider",
     "OllamaProvider",
 ]
-

@@ -6,7 +6,7 @@ Python bindings for ZK-SNARK compliance verification.
 
 Usage:
     from shared.zk import ComplianceProver, verify_threshold_proof
-    
+
     # Generate a proof
     prover = ComplianceProver()
     proof = await prover.prove_threshold(
@@ -14,30 +14,31 @@ Usage:
         threshold=8000,
         entity_id="LEI-123456789",
     )
-    
+
     # Verify proof
     is_valid = await verify_threshold_proof(proof)
 
 Version: 1.0.0
 """
 
+from shared.zk.models import (
+    ProofMetadata,
+    VerificationResult,
+    ZKProof,
+)
 from shared.zk.prover import (
     ComplianceProver,
-    ThresholdInput,
     RangeInput,
+    ThresholdInput,
     TierInput,
 )
 from shared.zk.verifier import (
     ComplianceVerifier,
-    verify_threshold_proof,
     verify_range_proof,
+    verify_threshold_proof,
     verify_tier_proof,
 )
-from shared.zk.models import (
-    ZKProof,
-    ProofMetadata,
-    VerificationResult,
-)
+
 
 __all__ = [
     # Prover
@@ -55,4 +56,3 @@ __all__ = [
     "ProofMetadata",
     "VerificationResult",
 ]
-

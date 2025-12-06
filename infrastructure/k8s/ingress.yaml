@@ -1,0 +1,106 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: civium-ingress
+  namespace: civium
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+    - hosts:
+        - api.civium.io
+      secretName: civium-tls
+  rules:
+    - host: api.civium.io
+      http:
+        paths:
+          - path: /api/v1/regulations
+            pathType: Prefix
+            backend:
+              service:
+                name: regulatory-intelligence
+                port:
+                  number: 8001
+          - path: /api/v1/ingest
+            pathType: Prefix
+            backend:
+              service:
+                name: regulatory-intelligence
+                port:
+                  number: 8001
+          - path: /api/v1/graph
+            pathType: Prefix
+            backend:
+              service:
+                name: compliance-graph
+                port:
+                  number: 8002
+          - path: /api/v1/compliance
+            pathType: Prefix
+            backend:
+              service:
+                name: compliance-graph
+                port:
+                  number: 8002
+          - path: /api/v1/entities
+            pathType: Prefix
+            backend:
+              service:
+                name: entity-assessment
+                port:
+                  number: 8003
+          - path: /api/v1/assessments
+            pathType: Prefix
+            backend:
+              service:
+                name: entity-assessment
+                port:
+                  number: 8003
+          - path: /api/v1/proofs
+            pathType: Prefix
+            backend:
+              service:
+                name: verification
+                port:
+                  number: 8004
+          - path: /api/v1/verify
+            pathType: Prefix
+            backend:
+              service:
+                name: verification
+                port:
+                  number: 8004
+          - path: /api/v1/credentials
+            pathType: Prefix
+            backend:
+              service:
+                name: verification
+                port:
+                  number: 8004
+          - path: /api/v1/events
+            pathType: Prefix
+            backend:
+              service:
+                name: monitoring
+                port:
+                  number: 8005
+          - path: /api/v1/alerts
+            pathType: Prefix
+            backend:
+              service:
+                name: monitoring
+                port:
+                  number: 8005
+          - path: /api/v1/metrics
+            pathType: Prefix
+            backend:
+              service:
+                name: monitoring
+                port:
+                  number: 8005
+

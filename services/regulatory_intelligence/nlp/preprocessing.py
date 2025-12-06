@@ -17,10 +17,10 @@ Version: 0.1.0
 import re
 import unicodedata
 from dataclasses import dataclass, field
-from datetime import date, datetime
-from typing import Any
+from datetime import date
 
 from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -325,7 +325,9 @@ class TextPreprocessor:
                 citation = Citation(
                     raw_text=match.group(0),
                     citation_type=citation_type,
-                    identifier=match.group(1) if match.lastindex and match.lastindex >= 1 else match.group(0),
+                    identifier=match.group(1)
+                    if match.lastindex and match.lastindex >= 1
+                    else match.group(0),
                     section=match.group(2) if match.lastindex and match.lastindex >= 2 else None,
                 )
                 citations.append(citation)
@@ -356,7 +358,7 @@ class TextPreprocessor:
         for i, section in enumerate(sections):
             # Content extends to the next section or end of document
             end_pos = sections[i + 1].start_pos if i + 1 < len(sections) else len(text)
-            section.content = text[section.end_pos:end_pos].strip()
+            section.content = text[section.end_pos : end_pos].strip()
 
         return sections
 
@@ -397,7 +399,13 @@ class TextPreprocessor:
         # Check for jurisdiction indicators
         jurisdiction_patterns = {
             "US": ["united states", "u.s.", "federal register", "u.s.c.", "c.f.r."],
-            "EU": ["european union", "regulation (eu)", "directive", "eur-lex", "european parliament"],
+            "EU": [
+                "european union",
+                "regulation (eu)",
+                "directive",
+                "eur-lex",
+                "european parliament",
+            ],
             "UK": ["united kingdom", "uk parliament", "statutory instrument", "uk legislation"],
             "CA": ["canada", "canadian", "gazette", "statutes of canada"],
             "AU": ["australia", "australian", "commonwealth of australia"],
@@ -430,4 +438,3 @@ class TextPreprocessor:
                 return reg_type
 
         return None
-

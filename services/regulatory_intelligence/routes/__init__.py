@@ -11,10 +11,7 @@ Routes:
 - pipeline: Complete NLP processing pipeline
 """
 
-from services.regulatory_intelligence.routes import regulations
-from services.regulatory_intelligence.routes import requirements
-from services.regulatory_intelligence.routes import ingestion
-from services.regulatory_intelligence.routes import pipeline
+from services.regulatory_intelligence.routes import ingestion, pipeline, regulations, requirements
 
-__all__ = ["regulations", "requirements", "ingestion", "pipeline"]
 
+__all__ = ["ingestion", "pipeline", "regulations", "requirements"]

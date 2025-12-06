@@ -9,14 +9,16 @@ Version: 0.1.0
 
 import hashlib
 from abc import ABC, abstractmethod
+from collections.abc import AsyncGenerator
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, date
+from datetime import UTC, date, datetime
 from enum import Enum
-from typing import Any, AsyncGenerator
+from typing import Any
 
 import httpx
 
 from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -342,4 +344,3 @@ class BaseScraper(ABC):
                 error=str(e),
             )
             return False, None
-

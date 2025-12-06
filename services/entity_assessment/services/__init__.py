@@ -12,20 +12,21 @@ Services:
 Version: 0.1.0
 """
 
-from services.entity_assessment.services.tier import (
-    TierService,
-    TierCriteria,
-    TierRecommendation,
-)
-from services.entity_assessment.services.score import (
-    ScoreService,
-    ScoreResult,
-    ScoreBreakdown,
-)
 from services.entity_assessment.services.assessment import (
     AssessmentService,
     AssessmentWorkflow,
 )
+from services.entity_assessment.services.score import (
+    ScoreBreakdown,
+    ScoreResult,
+    ScoreService,
+)
+from services.entity_assessment.services.tier import (
+    TierCriteria,
+    TierRecommendation,
+    TierService,
+)
+
 
 __all__ = [
     # Tier
@@ -40,4 +41,3 @@ __all__ = [
     "AssessmentService",
     "AssessmentWorkflow",
 ]
-

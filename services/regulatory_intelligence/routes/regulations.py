@@ -12,11 +12,12 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from shared.auth import get_current_user, User
+from shared.auth import User, get_current_user
 from shared.database.mongodb import get_mongodb
 from shared.logging import get_logger
-from shared.models.regulation import Regulation, RegulationSummary
 from shared.models.common import PaginatedResponse
+from shared.models.regulation import Regulation, RegulationSummary
+
 
 logger = get_logger(__name__)
 
@@ -56,19 +57,12 @@ async def list_regulations(
 
     # Get regulations
     skip = (page - 1) * page_size
-    cursor = (
-        db.regulations.find(query)
-        .sort("effective_date", -1)
-        .skip(skip)
-        .limit(page_size)
-    )
+    cursor = db.regulations.find(query).sort("effective_date", -1).skip(skip).limit(page_size)
 
     items = []
     async for doc in cursor:
         # Count requirements for this regulation
-        req_count = await db.requirements.count_documents(
-            {"regulation_id": doc["_id"]}
-        )
+        req_count = await db.requirements.count_documents({"regulation_id": doc["_id"]})
 
         items.append(
             RegulationSummary(
@@ -233,4 +227,3 @@ async def get_regulation_changes(
         changes.append(doc)
 
     return changes
-

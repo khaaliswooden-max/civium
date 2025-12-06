@@ -14,8 +14,9 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from shared.config import settings, BlockchainMode
+from shared.config import BlockchainMode, settings
 from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -388,4 +389,3 @@ def reset_blockchain_client() -> None:
     """Reset the client to be re-initialized."""
     global _client
     _client = None
-

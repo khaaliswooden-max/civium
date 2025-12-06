@@ -19,6 +19,7 @@ from typing import Any
 from shared.database.neo4j import Neo4jClient
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -138,13 +139,15 @@ class PathFinder:
             dep_id = r["dep_id"]
             if dep_id not in seen_ids:
                 seen_ids.add(dep_id)
-                requirements.append({
-                    "id": dep_id,
-                    "text": r["text"],
-                    "tier": r["tier"],
-                    "regulation_id": r["regulation_id"],
-                    "depth": r["depth"],
-                })
+                requirements.append(
+                    {
+                        "id": dep_id,
+                        "text": r["text"],
+                        "tier": r["tier"],
+                        "regulation_id": r["regulation_id"],
+                        "depth": r["depth"],
+                    }
+                )
                 max_depth_found = max(max_depth_found, r["depth"])
 
         # Check for cycles
@@ -210,13 +213,15 @@ class PathFinder:
         for r in results:
             if r["id"] not in seen:
                 seen.add(r["id"])
-                dependents.append({
-                    "id": r["id"],
-                    "text": r["text"],
-                    "tier": r["tier"],
-                    "regulation_id": r["regulation_id"],
-                    "depth": r["depth"],
-                })
+                dependents.append(
+                    {
+                        "id": r["id"],
+                        "text": r["text"],
+                        "tier": r["tier"],
+                        "regulation_id": r["regulation_id"],
+                        "depth": r["depth"],
+                    }
+                )
 
         return dependents
 
@@ -507,7 +512,7 @@ class PathFinder:
         params = {f"req_{i}": req_id for i, req_id in enumerate(requirement_ids)}
 
         query = f"""
-        {' '.join(match_clauses)}
+        {" ".join(match_clauses)}
         WITH ancestor, count(ancestor) as paths
         WHERE paths = $total
         RETURN ancestor.id as id,
@@ -527,4 +532,3 @@ class PathFinder:
             }
             for r in results
         ]
-

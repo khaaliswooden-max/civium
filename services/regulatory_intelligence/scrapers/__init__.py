@@ -18,12 +18,13 @@ from services.regulatory_intelligence.scrapers.base import (
     ScrapedDocument,
     ScraperConfig,
 )
-from services.regulatory_intelligence.scrapers.federal_register import (
-    FederalRegisterScraper,
-)
 from services.regulatory_intelligence.scrapers.eurlex import (
     EURLexScraper,
 )
+from services.regulatory_intelligence.scrapers.federal_register import (
+    FederalRegisterScraper,
+)
+
 
 __all__ = [
     # Base
@@ -34,4 +35,3 @@ __all__ = [
     "FederalRegisterScraper",
     "EURLexScraper",
 ]
-

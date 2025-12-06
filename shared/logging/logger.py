@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any
 import structlog
 from structlog.types import Processor
 
+
 if TYPE_CHECKING:
     from structlog.stdlib import BoundLogger
 
@@ -190,4 +191,3 @@ def bind_context(**kwargs: Any) -> None:
 def clear_context() -> None:
     """Clear all bound context variables."""
     structlog.contextvars.clear_contextvars()
-

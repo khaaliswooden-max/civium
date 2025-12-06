@@ -22,6 +22,7 @@ from shared.config import settings
 from shared.llm.provider import LLMMessage, LLMProvider, LLMResponse, LLMUsage
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -132,10 +133,12 @@ class OllamaProvider(LLMProvider):
         chat_messages = []
         for msg in messages:
             msg_dict = msg.to_dict()
-            chat_messages.append({
-                "role": msg_dict["role"],
-                "content": msg_dict["content"],
-            })
+            chat_messages.append(
+                {
+                    "role": msg_dict["role"],
+                    "content": msg_dict["content"],
+                }
+            )
 
         # Build options
         options: dict[str, Any] = {}
@@ -304,4 +307,3 @@ class OllamaProvider(LLMProvider):
     async def close(self) -> None:
         """Close the HTTP client."""
         await self._client.aclose()
-

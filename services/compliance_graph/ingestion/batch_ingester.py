@@ -12,14 +12,14 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
+from services.compliance_graph.ingestion.rml_ingester import (
+    IngestionOptions,
+    IngestionResult,
+    RMLIngester,
+)
 from shared.database.neo4j import Neo4jClient
 from shared.logging import get_logger
 
-from services.compliance_graph.ingestion.rml_ingester import (
-    RMLIngester,
-    IngestionOptions,
-    IngestionResult,
-)
 
 logger = get_logger(__name__)
 
@@ -120,11 +120,13 @@ class BatchIngester:
 
             if isinstance(doc_result, Exception):
                 result.documents_failed += 1
-                result.results.append({
-                    "document_id": doc_id,
-                    "success": False,
-                    "error": str(doc_result),
-                })
+                result.results.append(
+                    {
+                        "document_id": doc_id,
+                        "success": False,
+                        "error": str(doc_result),
+                    }
+                )
             elif isinstance(doc_result, IngestionResult):
                 if doc_result.success:
                     result.documents_succeeded += 1
@@ -135,19 +137,19 @@ class BatchIngester:
                 result.total_requirements += doc_result.requirements_created
                 result.total_relationships += doc_result.relationships_created
 
-                result.results.append({
-                    "document_id": doc_id,
-                    "success": doc_result.success,
-                    "regulations_created": doc_result.regulations_created,
-                    "requirements_created": doc_result.requirements_created,
-                    "relationships_created": doc_result.relationships_created,
-                    "errors": doc_result.errors,
-                })
+                result.results.append(
+                    {
+                        "document_id": doc_id,
+                        "success": doc_result.success,
+                        "regulations_created": doc_result.regulations_created,
+                        "requirements_created": doc_result.requirements_created,
+                        "relationships_created": doc_result.relationships_created,
+                        "errors": doc_result.errors,
+                    }
+                )
 
         result.completed_at = datetime.now(UTC)
-        result.duration_seconds = (
-            result.completed_at - result.started_at
-        ).total_seconds()
+        result.duration_seconds = (result.completed_at - result.started_at).total_seconds()
 
         logger.info(
             "batch_ingestion_complete",
@@ -259,9 +261,7 @@ async def clear_graph() -> dict[str, int]:
     )
 
     # Delete all nodes
-    node_result = await Neo4jClient.run_write_query(
-        "MATCH (n) DELETE n RETURN count(n) as count"
-    )
+    node_result = await Neo4jClient.run_write_query("MATCH (n) DELETE n RETURN count(n) as count")
 
     logger.warning(
         "graph_cleared",
@@ -273,4 +273,3 @@ async def clear_graph() -> dict[str, int]:
         "relationships_deleted": rel_result.get("relationships_deleted", 0),
         "nodes_deleted": node_result.get("nodes_deleted", 0),
     }
-

@@ -12,10 +12,11 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
-from shared.auth import get_current_user, User
+from shared.auth import User, get_current_user
 from shared.database.neo4j import Neo4jClient
 from shared.logging import get_logger
 from shared.models.regulation import Requirement
+
 
 logger = get_logger(__name__)
 
@@ -58,15 +59,11 @@ async def get_graph_stats() -> GraphStats:
     """
     try:
         # Count requirements
-        req_result = await Neo4jClient.run_query(
-            "MATCH (r:Requirement) RETURN count(r) as count"
-        )
+        req_result = await Neo4jClient.run_query("MATCH (r:Requirement) RETURN count(r) as count")
         req_count = req_result[0]["count"] if req_result else 0
 
         # Count entities
-        entity_result = await Neo4jClient.run_query(
-            "MATCH (e:Entity) RETURN count(e) as count"
-        )
+        entity_result = await Neo4jClient.run_query("MATCH (e:Entity) RETURN count(e) as count")
         entity_count = entity_result[0]["count"] if entity_result else 0
 
         # Count compliance states
@@ -76,9 +73,7 @@ async def get_graph_stats() -> GraphStats:
         state_count = state_result[0]["count"] if state_result else 0
 
         # Count relationships
-        rel_result = await Neo4jClient.run_query(
-            "MATCH ()-[r]->() RETURN count(r) as count"
-        )
+        rel_result = await Neo4jClient.run_query("MATCH ()-[r]->() RETURN count(r) as count")
         rel_count = rel_result[0]["count"] if rel_result else 0
 
         return GraphStats(
@@ -92,7 +87,7 @@ async def get_graph_stats() -> GraphStats:
         logger.error("graph_stats_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get graph stats: {str(e)}",
+            detail=f"Failed to get graph stats: {e!s}",
         )
 
 
@@ -144,7 +139,9 @@ async def get_requirements(
                     natural_language=node.get("natural_language", ""),
                     tier=node.get("tier", "basic"),
                     jurisdiction=node.get("jurisdiction"),
-                    effective_date=str(node.get("effective_date")) if node.get("effective_date") else None,
+                    effective_date=str(node.get("effective_date"))
+                    if node.get("effective_date")
+                    else None,
                 )
             )
 
@@ -154,7 +151,7 @@ async def get_requirements(
         logger.error("get_requirements_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Query failed: {str(e)}",
+            detail=f"Query failed: {e!s}",
         )
 
 
@@ -210,7 +207,7 @@ async def add_requirement_to_graph(
         logger.error("add_requirement_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to add requirement: {str(e)}",
+            detail=f"Failed to add requirement: {e!s}",
         )
 
 
@@ -260,6 +257,5 @@ async def execute_cypher_query(
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Query failed: {str(e)}",
+            detail=f"Query failed: {e!s}",
         )
-

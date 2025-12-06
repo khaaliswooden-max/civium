@@ -7,26 +7,27 @@ API endpoints for entity management.
 Version: 0.1.0
 """
 
+import uuid
 from datetime import UTC, datetime
 from typing import Any
-import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select, func, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.auth import get_current_user, User
+from services.entity_assessment.services.tier import TierService
+from shared.auth import User, get_current_user
 from shared.database.postgres import get_postgres_session
 from shared.logging import get_logger
+from shared.models.common import PaginatedResponse
 from shared.models.entity import (
+    ComplianceTier,
     Entity,
     EntityCreate,
-    EntityUpdate,
     EntitySummary,
-    ComplianceTier,
+    EntityUpdate,
 )
-from shared.models.common import PaginatedResponse
-from services.entity_assessment.services.tier import TierService
+
 
 logger = get_logger(__name__)
 
@@ -308,7 +309,7 @@ async def update_entity(
 
     update_query = text(f"""
         UPDATE core.entities
-        SET {', '.join(update_fields)}
+        SET {", ".join(update_fields)}
         WHERE id = :entity_id
         RETURNING *
     """)
@@ -384,8 +385,8 @@ def determine_tier(entity_data: EntityCreate) -> ComplianceTier:
     recommendation = tier_service.determine_tier(
         entity_type=entity_data.entity_type.value,
         size=entity_data.size,
-        employee_count=getattr(entity_data, 'employee_count', None),
-        annual_revenue=getattr(entity_data, 'annual_revenue', None),
+        employee_count=getattr(entity_data, "employee_count", None),
+        annual_revenue=getattr(entity_data, "annual_revenue", None),
         jurisdictions=entity_data.jurisdictions,
         sectors=entity_data.sectors,
         risk_factors=entity_data.metadata.get("risk_factors", {}) if entity_data.metadata else {},
@@ -399,4 +400,3 @@ def determine_tier(entity_data: EntityCreate) -> ComplianceTier:
     )
 
     return ComplianceTier(recommendation.recommended_tier.value)
-

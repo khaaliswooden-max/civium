@@ -12,11 +12,12 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from shared.auth import get_current_user, User
+from shared.auth import User, get_current_user
 from shared.database.mongodb import get_mongodb
 from shared.logging import get_logger
-from shared.models.regulation import Requirement, RequirementTier
 from shared.models.common import PaginatedResponse
+from shared.models.regulation import Requirement, RequirementTier
+
 
 logger = get_logger(__name__)
 
@@ -270,4 +271,3 @@ async def delete_requirement(
         requirement_id=requirement_id,
         user_id=current_user.id,
     )
-

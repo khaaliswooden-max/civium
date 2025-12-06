@@ -8,31 +8,28 @@ and relationships.
 Version: 0.1.0
 """
 
-import asyncio
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
+from services.compliance_graph.schema.nodes import (
+    ComplianceTier,
+    GovernanceLayer,
+    JurisdictionNode,
+    RegulationNode,
+    RequirementNode,
+    SectorNode,
+    VerificationMethod,
+)
+from services.compliance_graph.schema.relationships import (
+    AppliesTo,
+    BelongsTo,
+    ConflictsWith,
+    DependsOn,
+)
 from shared.database.neo4j import Neo4jClient
 from shared.logging import get_logger
 
-from services.compliance_graph.schema.nodes import (
-    RequirementNode,
-    RegulationNode,
-    JurisdictionNode,
-    SectorNode,
-    ComplianceTier,
-    VerificationMethod,
-    GovernanceLayer,
-)
-from services.compliance_graph.schema.relationships import (
-    RelationshipType,
-    BelongsTo,
-    AppliesTo,
-    DependsOn,
-    ConflictsWith,
-    Supersedes,
-)
 
 logger = get_logger(__name__)
 
@@ -150,11 +147,13 @@ class RMLIngester:
                         result.jurisdictions_created += 1
                     except Exception as e:
                         if "already exists" not in str(e).lower():
-                            result.errors.append({
-                                "type": "jurisdiction",
-                                "id": jurisdiction,
-                                "error": str(e),
-                            })
+                            result.errors.append(
+                                {
+                                    "type": "jurisdiction",
+                                    "id": jurisdiction,
+                                    "error": str(e),
+                                }
+                            )
 
             # Step 3: Create Sector nodes
             if self.options.create_sectors:
@@ -165,11 +164,13 @@ class RMLIngester:
                         result.sectors_created += 1
                     except Exception as e:
                         if "already exists" not in str(e).lower():
-                            result.errors.append({
-                                "type": "sector",
-                                "id": sector,
-                                "error": str(e),
-                            })
+                            result.errors.append(
+                                {
+                                    "type": "sector",
+                                    "id": sector,
+                                    "error": str(e),
+                                }
+                            )
 
             # Step 4: Create Requirement nodes
             if self.options.create_requirements:
@@ -206,16 +207,16 @@ class RMLIngester:
                             result.relationships_created += rel_count
 
                     except Exception as e:
-                        result.errors.append({
-                            "type": "requirement",
-                            "id": req.get("id", "unknown"),
-                            "error": str(e),
-                        })
+                        result.errors.append(
+                            {
+                                "type": "requirement",
+                                "id": req.get("id", "unknown"),
+                                "error": str(e),
+                            }
+                        )
 
             result.completed_at = datetime.now(UTC)
-            result.duration_seconds = (
-                result.completed_at - result.started_at
-            ).total_seconds()
+            result.duration_seconds = (result.completed_at - result.started_at).total_seconds()
 
             logger.info(
                 "rml_ingestion_complete",
@@ -227,10 +228,12 @@ class RMLIngester:
             )
 
         except Exception as e:
-            result.errors.append({
-                "type": "general",
-                "error": str(e),
-            })
+            result.errors.append(
+                {
+                    "type": "general",
+                    "error": str(e),
+                }
+            )
             logger.error(
                 "rml_ingestion_failed",
                 regulation_id=rml_document.get("id"),
@@ -613,4 +616,3 @@ class RMLIngester:
                 sectors.add(s)
 
         return list(sectors)
-

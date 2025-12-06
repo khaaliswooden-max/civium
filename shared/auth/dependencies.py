@@ -14,8 +14,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, Field
 
-from shared.auth.jwt import TokenData, decode_token
+from shared.auth.jwt import decode_token
 from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -183,4 +184,3 @@ async def get_api_key_user(
     # TODO: Implement API key lookup from database
     # This is a placeholder that always returns None
     return None
-

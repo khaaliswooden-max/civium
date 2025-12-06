@@ -17,6 +17,7 @@ from redis.asyncio import Redis
 from shared.config import settings
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -271,4 +272,3 @@ async def redis_lock(
         current = await client.get(lock_key)
         if current == lock_value:
             await client.delete(lock_key)
-

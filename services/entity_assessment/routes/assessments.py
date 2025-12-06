@@ -7,25 +7,26 @@ API endpoints for compliance assessments.
 Version: 0.1.0
 """
 
+import uuid
 from datetime import UTC, datetime
 from typing import Any
-import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.auth import get_current_user, User
+from shared.auth import User, get_current_user
 from shared.database.postgres import get_postgres_session
 from shared.logging import get_logger
 from shared.models.assessment import (
     Assessment,
     AssessmentCreate,
-    AssessmentUpdate,
     AssessmentStatus,
     AssessmentSummary,
+    AssessmentUpdate,
 )
 from shared.models.common import PaginatedResponse
+
 
 logger = get_logger(__name__)
 
@@ -264,7 +265,7 @@ async def update_assessment(
 
     update_query = text(f"""
         UPDATE core.assessments
-        SET {', '.join(update_fields)}
+        SET {", ".join(update_fields)}
         WHERE id = :assessment_id
         RETURNING *
     """)
@@ -362,4 +363,3 @@ async def reject_assessment(
         notes=reason,
     )
     return await update_assessment(assessment_id, update, db, current_user)
-

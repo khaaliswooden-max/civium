@@ -9,6 +9,7 @@ Version: 0.1.0
 
 from passlib.context import CryptContext
 
+
 # Configure bcrypt with default rounds
 _pwd_context = CryptContext(
     schemes=["bcrypt"],
@@ -58,4 +59,3 @@ def needs_rehash(hashed_password: str) -> bool:
         bool: True if password should be rehashed
     """
     return _pwd_context.needs_update(hashed_password)
-

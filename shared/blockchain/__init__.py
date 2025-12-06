@@ -21,29 +21,30 @@ Usage:
         AuditRecord,
         DID,
     )
-    
+
     client = get_blockchain_client()
-    
+
     # Record audit trail
     tx_hash = await client.record_audit(
         entity_id="LEI-123",
         event_type="compliance_assessment",
         data_hash="sha256:...",
     )
-    
+
     # Create DID
     did = await client.create_did(entity_id="LEI-123")
 """
 
 from shared.blockchain.client import (
-    BlockchainClient,
-    AuditRecord,
     DID,
+    AuditRecord,
+    BlockchainClient,
     VerifiableCredential,
     get_blockchain_client,
     set_blockchain_client,
 )
 from shared.blockchain.mock import MockBlockchainClient
+
 
 __all__ = [
     # Client
@@ -57,4 +58,3 @@ __all__ = [
     # Implementations
     "MockBlockchainClient",
 ]
-

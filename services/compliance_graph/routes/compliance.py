@@ -7,22 +7,19 @@ API endpoints for compliance status and gap analysis.
 Version: 0.1.0
 """
 
-from datetime import date
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
-from shared.auth import get_current_user, User
-from shared.logging import get_logger
-
 from services.compliance_graph.queries.compliance import (
     ComplianceQueryEngine,
-    ComplianceGap,
     ComplianceScore,
-    ComplianceReport,
 )
 from services.compliance_graph.schema.nodes import ComplianceStatus
+from shared.auth import User, get_current_user
+from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -130,7 +127,7 @@ async def get_compliance_score(
         logger.error("compliance_score_failed", entity_id=entity_id, error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get compliance score: {str(e)}",
+            detail=f"Failed to get compliance score: {e!s}",
         )
 
 
@@ -179,7 +176,7 @@ async def get_compliance_gaps(
         logger.error("compliance_gaps_failed", entity_id=entity_id, error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get compliance gaps: {str(e)}",
+            detail=f"Failed to get compliance gaps: {e!s}",
         )
 
 
@@ -219,14 +216,8 @@ async def get_compliance_report(
             entity_name=report.entity_name,
             generated_at=report.generated_at.isoformat(),
             score=score_to_response(report.score),
-            by_jurisdiction={
-                j: score_to_response(s)
-                for j, s in report.by_jurisdiction.items()
-            },
-            by_tier={
-                t: score_to_response(s)
-                for t, s in report.by_tier.items()
-            },
+            by_jurisdiction={j: score_to_response(s) for j, s in report.by_jurisdiction.items()},
+            by_tier={t: score_to_response(s) for t, s in report.by_tier.items()},
             critical_gaps=[
                 ComplianceGapResponse(
                     requirement_id=g.requirement_id,
@@ -251,7 +242,7 @@ async def get_compliance_report(
         logger.error("compliance_report_failed", entity_id=entity_id, error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate report: {str(e)}",
+            detail=f"Failed to generate report: {e!s}",
         )
 
 
@@ -297,7 +288,7 @@ async def update_compliance_status(
         logger.error("compliance_update_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update compliance status: {str(e)}",
+            detail=f"Failed to update compliance status: {e!s}",
         )
 
 
@@ -319,6 +310,5 @@ async def get_entity_compliance_status(
         logger.error("compliance_status_failed", entity_id=entity_id, error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get compliance status: {str(e)}",
+            detail=f"Failed to get compliance status: {e!s}",
         )
-

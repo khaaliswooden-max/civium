@@ -11,10 +11,11 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any
 
-from neo4j import AsyncGraphDatabase, AsyncDriver, AsyncSession
+from neo4j import AsyncDriver, AsyncGraphDatabase, AsyncSession
 
 from shared.config import settings
 from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -178,4 +179,3 @@ async def neo4j_session(
     driver = Neo4jClient.get_driver()
     async with driver.session(database=database) as session:
         yield session
-

@@ -18,6 +18,7 @@ from typing import Any
 
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -56,53 +57,61 @@ class TierCriteria:
     medium_revenue: float = 10_000_000  # $10M
 
     # High-risk sectors requiring ADVANCED tier
-    advanced_sectors: set[str] = field(default_factory=lambda: {
-        "FINANCE",
-        "BANKING",
-        "INSURANCE",
-        "HEALTHCARE",
-        "PHARMACEUTICALS",
-        "DEFENSE",
-        "GOVERNMENT",
-        "CRITICAL_INFRASTRUCTURE",
-        "ENERGY",
-        "NUCLEAR",
-    })
+    advanced_sectors: set[str] = field(
+        default_factory=lambda: {
+            "FINANCE",
+            "BANKING",
+            "INSURANCE",
+            "HEALTHCARE",
+            "PHARMACEUTICALS",
+            "DEFENSE",
+            "GOVERNMENT",
+            "CRITICAL_INFRASTRUCTURE",
+            "ENERGY",
+            "NUCLEAR",
+        }
+    )
 
     # Standard-risk sectors requiring at least STANDARD tier
-    standard_sectors: set[str] = field(default_factory=lambda: {
-        "TECHNOLOGY",
-        "TELECOMMUNICATIONS",
-        "MANUFACTURING",
-        "TRANSPORT",
-        "LOGISTICS",
-        "RETAIL",
-        "REAL_ESTATE",
-    })
+    standard_sectors: set[str] = field(
+        default_factory=lambda: {
+            "TECHNOLOGY",
+            "TELECOMMUNICATIONS",
+            "MANUFACTURING",
+            "TRANSPORT",
+            "LOGISTICS",
+            "RETAIL",
+            "REAL_ESTATE",
+        }
+    )
 
     # High-risk jurisdictions requiring ADVANCED tier
-    advanced_jurisdictions: set[str] = field(default_factory=lambda: {
-        "US",  # Heavy regulatory environment
-        "EU",  # GDPR and other regulations
-        "UK",  # Post-Brexit regulations
-        "SG",  # Financial hub
-        "HK",  # Financial hub
-    })
+    advanced_jurisdictions: set[str] = field(
+        default_factory=lambda: {
+            "US",  # Heavy regulatory environment
+            "EU",  # GDPR and other regulations
+            "UK",  # Post-Brexit regulations
+            "SG",  # Financial hub
+            "HK",  # Financial hub
+        }
+    )
 
     # Number of jurisdictions that triggers tier upgrade
     multi_jurisdiction_threshold: int = 3
 
     # Risk factors that trigger tier upgrade
-    risk_factors: dict[str, int] = field(default_factory=lambda: {
-        "processes_personal_data": 1,
-        "processes_sensitive_data": 2,
-        "cross_border_transfers": 1,
-        "government_contractor": 2,
-        "publicly_traded": 1,
-        "critical_infrastructure": 2,
-        "handles_minors_data": 2,
-        "automated_decision_making": 1,
-    })
+    risk_factors: dict[str, int] = field(
+        default_factory=lambda: {
+            "processes_personal_data": 1,
+            "processes_sensitive_data": 2,
+            "cross_border_transfers": 1,
+            "government_contractor": 2,
+            "publicly_traded": 1,
+            "critical_infrastructure": 2,
+            "handles_minors_data": 2,
+            "automated_decision_making": 1,
+        }
+    )
 
 
 @dataclass
@@ -193,9 +202,7 @@ class TierService:
         # =================================================================
         # Factor 1: Entity Size
         # =================================================================
-        size_tier, size_factor = self._evaluate_size(
-            size, employee_count, annual_revenue
-        )
+        size_tier, size_factor = self._evaluate_size(size, employee_count, annual_revenue)
         tier_scores[size_tier] += 2
         factors.append(size_factor)
         if size_tier == ComplianceTier.ADVANCED:
@@ -236,7 +243,7 @@ class TierService:
         # =================================================================
         # Determine Final Tier
         # =================================================================
-        
+
         # Find the tier with highest score
         recommended_tier = max(tier_scores, key=tier_scores.get)  # type: ignore[arg-type]
 
@@ -352,40 +359,56 @@ class TierService:
     ) -> tuple[ComplianceTier, dict[str, Any], float]:
         """Evaluate sectors for tier determination."""
         if not sectors:
-            return ComplianceTier.BASIC, {
-                "factor": "sector",
-                "tier": "basic",
-                "reason": "No sectors specified",
-            }, 0.0
+            return (
+                ComplianceTier.BASIC,
+                {
+                    "factor": "sector",
+                    "tier": "basic",
+                    "reason": "No sectors specified",
+                },
+                0.0,
+            )
 
         sectors_upper = {s.upper() for s in sectors}
 
         # Check for advanced sectors
         advanced_matches = sectors_upper & self.criteria.advanced_sectors
         if advanced_matches:
-            return ComplianceTier.ADVANCED, {
-                "factor": "sector",
-                "tier": "advanced",
-                "reason": f"Regulated sectors: {', '.join(advanced_matches)}",
-                "matched_sectors": list(advanced_matches),
-            }, 3.0
+            return (
+                ComplianceTier.ADVANCED,
+                {
+                    "factor": "sector",
+                    "tier": "advanced",
+                    "reason": f"Regulated sectors: {', '.join(advanced_matches)}",
+                    "matched_sectors": list(advanced_matches),
+                },
+                3.0,
+            )
 
         # Check for standard sectors
         standard_matches = sectors_upper & self.criteria.standard_sectors
         if standard_matches:
-            return ComplianceTier.STANDARD, {
-                "factor": "sector",
-                "tier": "standard",
-                "reason": f"Standard-risk sectors: {', '.join(standard_matches)}",
-                "matched_sectors": list(standard_matches),
-            }, 1.5
+            return (
+                ComplianceTier.STANDARD,
+                {
+                    "factor": "sector",
+                    "tier": "standard",
+                    "reason": f"Standard-risk sectors: {', '.join(standard_matches)}",
+                    "matched_sectors": list(standard_matches),
+                },
+                1.5,
+            )
 
-        return ComplianceTier.BASIC, {
-            "factor": "sector",
-            "tier": "basic",
-            "reason": "Low-risk sectors",
-            "sectors": sectors,
-        }, 0.5
+        return (
+            ComplianceTier.BASIC,
+            {
+                "factor": "sector",
+                "tier": "basic",
+                "reason": "Low-risk sectors",
+                "sectors": sectors,
+            },
+            0.5,
+        )
 
     def _evaluate_jurisdictions(
         self,
@@ -393,11 +416,15 @@ class TierService:
     ) -> tuple[ComplianceTier, dict[str, Any], float]:
         """Evaluate jurisdictions for tier determination."""
         if not jurisdictions:
-            return ComplianceTier.BASIC, {
-                "factor": "jurisdiction",
-                "tier": "basic",
-                "reason": "No jurisdictions specified",
-            }, 0.0
+            return (
+                ComplianceTier.BASIC,
+                {
+                    "factor": "jurisdiction",
+                    "tier": "basic",
+                    "reason": "No jurisdictions specified",
+                },
+                0.0,
+            )
 
         jurisdictions_upper = {j.upper() for j in jurisdictions}
         num_jurisdictions = len(jurisdictions_upper)
@@ -405,37 +432,53 @@ class TierService:
         # Check for advanced jurisdictions
         advanced_matches = jurisdictions_upper & self.criteria.advanced_jurisdictions
         if advanced_matches and len(advanced_matches) >= 2:
-            return ComplianceTier.ADVANCED, {
-                "factor": "jurisdiction",
-                "tier": "advanced",
-                "reason": f"Multiple regulated jurisdictions: {', '.join(advanced_matches)}",
-                "count": num_jurisdictions,
-            }, 2.5
+            return (
+                ComplianceTier.ADVANCED,
+                {
+                    "factor": "jurisdiction",
+                    "tier": "advanced",
+                    "reason": f"Multiple regulated jurisdictions: {', '.join(advanced_matches)}",
+                    "count": num_jurisdictions,
+                },
+                2.5,
+            )
 
         # Check for multi-jurisdiction
         if num_jurisdictions >= self.criteria.multi_jurisdiction_threshold:
-            return ComplianceTier.STANDARD, {
-                "factor": "jurisdiction",
-                "tier": "standard",
-                "reason": f"Multi-jurisdictional ({num_jurisdictions} jurisdictions)",
-                "count": num_jurisdictions,
-            }, 1.5
+            return (
+                ComplianceTier.STANDARD,
+                {
+                    "factor": "jurisdiction",
+                    "tier": "standard",
+                    "reason": f"Multi-jurisdictional ({num_jurisdictions} jurisdictions)",
+                    "count": num_jurisdictions,
+                },
+                1.5,
+            )
 
         # Single advanced jurisdiction
         if advanced_matches:
-            return ComplianceTier.STANDARD, {
-                "factor": "jurisdiction",
-                "tier": "standard",
-                "reason": f"Regulated jurisdiction: {', '.join(advanced_matches)}",
-                "count": num_jurisdictions,
-            }, 1.0
+            return (
+                ComplianceTier.STANDARD,
+                {
+                    "factor": "jurisdiction",
+                    "tier": "standard",
+                    "reason": f"Regulated jurisdiction: {', '.join(advanced_matches)}",
+                    "count": num_jurisdictions,
+                },
+                1.0,
+            )
 
-        return ComplianceTier.BASIC, {
-            "factor": "jurisdiction",
-            "tier": "basic",
-            "reason": f"Single jurisdiction: {jurisdictions[0]}",
-            "count": num_jurisdictions,
-        }, 0.5
+        return (
+            ComplianceTier.BASIC,
+            {
+                "factor": "jurisdiction",
+                "tier": "basic",
+                "reason": f"Single jurisdiction: {jurisdictions[0]}",
+                "count": num_jurisdictions,
+            },
+            0.5,
+        )
 
     def _evaluate_entity_type(
         self,
@@ -487,10 +530,12 @@ class TierService:
             if is_active and factor in self.criteria.risk_factors:
                 factor_weight = self.criteria.risk_factors[factor]
                 total_risk += factor_weight
-                active_factors.append({
-                    "factor": factor,
-                    "weight": factor_weight,
-                })
+                active_factors.append(
+                    {
+                        "factor": factor,
+                        "weight": factor_weight,
+                    }
+                )
 
         if total_risk >= 4:
             tier = ComplianceTier.ADVANCED
@@ -499,13 +544,17 @@ class TierService:
         else:
             tier = ComplianceTier.BASIC
 
-        return tier, {
-            "factor": "risk_factors",
-            "tier": tier.value,
-            "reason": f"{len(active_factors)} risk factors active",
-            "total_risk_score": total_risk,
-            "active_factors": active_factors,
-        }, float(total_risk)
+        return (
+            tier,
+            {
+                "factor": "risk_factors",
+                "tier": tier.value,
+                "reason": f"{len(active_factors)} risk factors active",
+                "total_risk_score": total_risk,
+                "active_factors": active_factors,
+            },
+            float(total_risk),
+        )
 
     def _get_required_capabilities(
         self,
@@ -547,20 +596,24 @@ class TierService:
         triggers = []
 
         if current_tier == ComplianceTier.BASIC:
-            triggers.extend([
-                f"Reach {self.criteria.medium_employee_count}+ employees",
-                f"Exceed ${self.criteria.medium_revenue:,.0f} annual revenue",
-                f"Expand to {self.criteria.multi_jurisdiction_threshold}+ jurisdictions",
-                "Enter regulated sector (Finance, Healthcare, etc.)",
-            ])
+            triggers.extend(
+                [
+                    f"Reach {self.criteria.medium_employee_count}+ employees",
+                    f"Exceed ${self.criteria.medium_revenue:,.0f} annual revenue",
+                    f"Expand to {self.criteria.multi_jurisdiction_threshold}+ jurisdictions",
+                    "Enter regulated sector (Finance, Healthcare, etc.)",
+                ]
+            )
         elif current_tier == ComplianceTier.STANDARD:
-            triggers.extend([
-                f"Reach {self.criteria.large_employee_count}+ employees",
-                f"Exceed ${self.criteria.large_revenue:,.0f} annual revenue",
-                "Expand to multiple regulated jurisdictions",
-                "Process sensitive personal data",
-                "Become government contractor",
-            ])
+            triggers.extend(
+                [
+                    f"Reach {self.criteria.large_employee_count}+ employees",
+                    f"Exceed ${self.criteria.large_revenue:,.0f} annual revenue",
+                    "Expand to multiple regulated jurisdictions",
+                    "Process sensitive personal data",
+                    "Become government contractor",
+                ]
+            )
 
         return triggers
 
@@ -604,4 +657,3 @@ class TierService:
             "requirement_count": requirement_count,
             "notes": "Estimate only - actual costs vary based on specifics",
         }
-

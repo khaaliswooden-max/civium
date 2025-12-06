@@ -14,14 +14,14 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.auth import get_current_user, User
+from services.entity_assessment.services.tier import (
+    ComplianceTier,
+    TierService,
+)
+from shared.auth import User, get_current_user
 from shared.database.postgres import get_postgres_session
 from shared.logging import get_logger
-from services.entity_assessment.services.tier import (
-    TierService,
-    TierRecommendation,
-    ComplianceTier,
-)
+
 
 logger = get_logger(__name__)
 
@@ -252,10 +252,13 @@ async def update_entity_tier(
         WHERE id = :entity_id
     """)
 
-    await db.execute(update_query, {
-        "entity_id": entity_id,
-        "tier": recommendation.recommended_tier.value,
-    })
+    await db.execute(
+        update_query,
+        {
+            "entity_id": entity_id,
+            "tier": recommendation.recommended_tier.value,
+        },
+    )
 
     logger.info(
         "entity_tier_updated",
@@ -312,12 +315,15 @@ async def override_entity_tier(
         WHERE id = :entity_id
     """)
 
-    await db.execute(update_query, {
-        "entity_id": entity_id,
-        "tier": request.tier.value,
-        "reason": request.reason,
-        "user_id": current_user.id,
-    })
+    await db.execute(
+        update_query,
+        {
+            "entity_id": entity_id,
+            "tier": request.tier.value,
+            "reason": request.reason,
+            "user_id": current_user.id,
+        },
+    )
 
     logger.info(
         "entity_tier_overridden",
@@ -388,11 +394,14 @@ async def clear_tier_override(
         WHERE id = :entity_id
     """)
 
-    await db.execute(update_query, {
-        "entity_id": entity_id,
-        "tier": recommendation.recommended_tier.value,
-        "user_id": current_user.id,
-    })
+    await db.execute(
+        update_query,
+        {
+            "entity_id": entity_id,
+            "tier": recommendation.recommended_tier.value,
+            "user_id": current_user.id,
+        },
+    )
 
     logger.info(
         "entity_tier_override_cleared",
@@ -499,4 +508,3 @@ async def get_tier_requirements(
         "tier": tier.value,
         **tier_info,
     }
-

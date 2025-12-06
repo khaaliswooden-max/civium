@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: civium-config
+  namespace: civium
+  labels:
+    app.kubernetes.io/name: civium
+data:
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  DEBUG: "false"
+
+  # Service Ports
+  REGULATORY_INTELLIGENCE_PORT: "8001"
+  COMPLIANCE_GRAPH_PORT: "8002"
+  ENTITY_ASSESSMENT_PORT: "8003"
+  VERIFICATION_PORT: "8004"
+  MONITORING_PORT: "8005"
+  API_GATEWAY_PORT: "8000"
+
+  # Database Hosts (internal K8s services)
+  POSTGRES_HOST: "postgres-service.civium.svc.cluster.local"
+  POSTGRES_PORT: "5432"
+  NEO4J_HOST: "neo4j-service.civium.svc.cluster.local"
+  NEO4J_BOLT_PORT: "7687"
+  MONGODB_HOST: "mongodb-service.civium.svc.cluster.local"
+  MONGODB_PORT: "27017"
+  REDIS_HOST: "redis-service.civium.svc.cluster.local"
+  REDIS_PORT: "6379"
+  INFLUXDB_HOST: "influxdb-service.civium.svc.cluster.local"
+  INFLUXDB_PORT: "8086"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-service.civium.svc.cluster.local:9092"
+
+  # LLM Settings
+  LLM_PROVIDER: "claude"
+  LLM_TEMPERATURE: "0.1"
+  LLM_MAX_RETRIES: "3"
+  LLM_TIMEOUT_SECONDS: "120"
+
+  # Blockchain
+  BLOCKCHAIN_MODE: "testnet"
+
+  # Monitoring
+  PROMETHEUS_ENABLED: "true"
+  OTEL_ENABLED: "true"
+  OTEL_SERVICE_NAME: "civium"
+
+  # CORS
+  CORS_ORIGINS: "https://app.civium.io,https://admin.civium.io"
+  CORS_ALLOW_CREDENTIALS: "true"
+
+  # Rate Limiting
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_REQUESTS_PER_MINUTE: "100"
+  RATE_LIMIT_BURST: "20"
+

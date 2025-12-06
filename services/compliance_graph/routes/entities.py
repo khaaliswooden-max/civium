@@ -10,12 +10,13 @@ Version: 0.1.0
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from shared.auth import get_current_user, User
+from shared.auth import User, get_current_user
 from shared.database.neo4j import Neo4jClient
 from shared.logging import get_logger
 from shared.models.compliance import ComplianceGap, ComplianceStatus
+
 
 logger = get_logger(__name__)
 
@@ -84,13 +85,15 @@ async def get_entity_requirements(
         requirements = []
         for record in results:
             node = record.get("r", {})
-            requirements.append({
-                "id": node.get("id"),
-                "regulation_id": node.get("regulation_id"),
-                "natural_language": node.get("natural_language"),
-                "tier": node.get("tier"),
-                "verification_method": node.get("verification_method"),
-            })
+            requirements.append(
+                {
+                    "id": node.get("id"),
+                    "regulation_id": node.get("regulation_id"),
+                    "natural_language": node.get("natural_language"),
+                    "tier": node.get("tier"),
+                    "verification_method": node.get("verification_method"),
+                }
+            )
 
         return EntityRequirements(
             entity_id=entity_id,
@@ -106,7 +109,7 @@ async def get_entity_requirements(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Query failed: {str(e)}",
+            detail=f"Query failed: {e!s}",
         )
 
 
@@ -152,7 +155,7 @@ async def get_entity_compliance_state(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Query failed: {str(e)}",
+            detail=f"Query failed: {e!s}",
         )
 
 
@@ -225,7 +228,7 @@ async def get_entity_compliance_gaps(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Query failed: {str(e)}",
+            detail=f"Query failed: {e!s}",
         )
 
 
@@ -244,7 +247,6 @@ async def update_compliance_state(
 
     Requires authentication.
     """
-    from datetime import UTC, datetime
 
     query = """
     MATCH (e:Entity {id: $entity_id})
@@ -294,7 +296,7 @@ async def update_compliance_state(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Update failed: {str(e)}",
+            detail=f"Update failed: {e!s}",
         )
 
 
@@ -375,6 +377,5 @@ async def sync_entity_to_graph(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Sync failed: {str(e)}",
+            detail=f"Sync failed: {e!s}",
         )
-

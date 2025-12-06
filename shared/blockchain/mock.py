@@ -13,16 +13,17 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from shared.blockchain.client import (
+    DID,
     AuditEventType,
     AuditRecord,
     BlockchainClient,
     CredentialStatus,
-    DID,
     DIDDocument,
     VerifiableCredential,
 )
 from shared.config import BlockchainMode
 from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -102,7 +103,7 @@ class MockBlockchainClient(BlockchainClient):
         """Record an audit event."""
         # Get previous hash for chain
         previous_hash = None
-        if entity_id in self._entity_audits and self._entity_audits[entity_id]:
+        if self._entity_audits.get(entity_id):
             last_audit_id = self._entity_audits[entity_id][-1]
             last_audit = self._audit_records[last_audit_id]
             previous_hash = last_audit.data_hash
@@ -188,12 +189,14 @@ class MockBlockchainClient(BlockchainClient):
         authentications = []
         if public_key:
             vm_id = f"{did_id}#key-1"
-            verification_methods.append({
-                "id": vm_id,
-                "type": "Ed25519VerificationKey2020",
-                "controller": did_id,
-                "publicKeyMultibase": public_key,
-            })
+            verification_methods.append(
+                {
+                    "id": vm_id,
+                    "type": "Ed25519VerificationKey2020",
+                    "controller": did_id,
+                    "publicKeyMultibase": public_key,
+                }
+            )
             authentications.append(vm_id)
 
         # Create document
@@ -368,9 +371,7 @@ class MockBlockchainClient(BlockchainClient):
                     await self.record_audit(
                         entity_id=did_obj.entity_id,
                         event_type=AuditEventType.CREDENTIAL_REVOKED,
-                        data_hash=hashlib.sha256(
-                            f"{credential_id}:{reason}".encode()
-                        ).hexdigest(),
+                        data_hash=hashlib.sha256(f"{credential_id}:{reason}".encode()).hexdigest(),
                         metadata={"credential_id": credential_id, "reason": reason},
                     )
                     break
@@ -405,4 +406,3 @@ class MockBlockchainClient(BlockchainClient):
             "credentials": len(self._credentials),
             "block_number": self._block_number,
         }
-

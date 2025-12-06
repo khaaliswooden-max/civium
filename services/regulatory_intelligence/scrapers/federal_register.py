@@ -20,14 +20,14 @@ from collections.abc import AsyncGenerator
 from datetime import date, timedelta
 from typing import Any
 
-from shared.logging import get_logger
 from services.regulatory_intelligence.scrapers.base import (
     BaseScraper,
     DocumentType,
     ScrapedDocument,
-    ScraperConfig,
     SearchResult,
 )
+from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -132,11 +132,7 @@ class FederalRegisterScraper(BaseScraper):
                     document_type=doc_type,
                     url=item.get("html_url", ""),
                     snippet=item.get("abstract", "")[:500] if item.get("abstract") else None,
-                    agencies=[
-                        a.get("name", "")
-                        for a in item.get("agencies", [])
-                        if a.get("name")
-                    ],
+                    agencies=[a.get("name", "") for a in item.get("agencies", []) if a.get("name")],
                 )
             )
 
@@ -230,11 +226,7 @@ class FederalRegisterScraper(BaseScraper):
             effective_date=effective_date,
             comment_end_date=comment_end,
             agency=data.get("agencies", [{}])[0].get("name") if data.get("agencies") else None,
-            agencies=[
-                a.get("name", "")
-                for a in data.get("agencies", [])
-                if a.get("name")
-            ],
+            agencies=[a.get("name", "") for a in data.get("agencies", []) if a.get("name")],
             docket_ids=data.get("docket_ids", []),
             citation=data.get("citation"),
             cfr_references=cfr_refs,
@@ -408,4 +400,3 @@ class FederalRegisterScraper(BaseScraper):
         text = re.sub(r"\n{3,}", "\n\n", text)
 
         return text.strip()
-

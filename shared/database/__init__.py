@@ -19,7 +19,7 @@ Usage:
         get_mongodb,
         get_redis,
     )
-    
+
     # In FastAPI
     @app.get("/example")
     async def example(
@@ -29,28 +29,29 @@ Usage:
         ...
 """
 
-from shared.database.postgres import (
-    get_postgres_session,
-    PostgresClient,
-    Base,
-)
-from shared.database.neo4j import (
-    get_neo4j_driver,
-    Neo4jClient,
+from shared.database.kafka import (
+    KafkaClient,
+    get_kafka_consumer,
+    get_kafka_producer,
 )
 from shared.database.mongodb import (
-    get_mongodb,
     MongoDBClient,
+    get_mongodb,
+)
+from shared.database.neo4j import (
+    Neo4jClient,
+    get_neo4j_driver,
+)
+from shared.database.postgres import (
+    Base,
+    PostgresClient,
+    get_postgres_session,
 )
 from shared.database.redis import (
-    get_redis,
     RedisClient,
+    get_redis,
 )
-from shared.database.kafka import (
-    get_kafka_producer,
-    get_kafka_consumer,
-    KafkaClient,
-)
+
 
 __all__ = [
     # PostgreSQL
@@ -71,4 +72,3 @@ __all__ = [
     "get_kafka_consumer",
     "KafkaClient",
 ]
-

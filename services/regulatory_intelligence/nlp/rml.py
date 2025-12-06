@@ -16,19 +16,17 @@ Version: 0.1.0
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from enum import Enum
 from typing import Any
 
-from shared.logging import get_logger
 from services.regulatory_intelligence.nlp.parser import (
     ParsedRegulation,
     ParsedRequirement,
-    ComplianceTier,
-    RequirementType,
-    VerificationMethod,
 )
+from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -60,27 +58,33 @@ class RMLRequirement:
     verification_method: str = "self_attestation"
 
     # Applicability scope
-    scope: dict[str, Any] = field(default_factory=lambda: {
-        "entities": [],
-        "sectors": [],
-        "jurisdictions": [],
-        "size_thresholds": {},
-    })
+    scope: dict[str, Any] = field(
+        default_factory=lambda: {
+            "entities": [],
+            "sectors": [],
+            "jurisdictions": [],
+            "size_thresholds": {},
+        }
+    )
 
     # Temporal validity
-    temporal: dict[str, Any] = field(default_factory=lambda: {
-        "effective_date": None,
-        "sunset_date": None,
-        "review_period_days": None,
-    })
+    temporal: dict[str, Any] = field(
+        default_factory=lambda: {
+            "effective_date": None,
+            "sunset_date": None,
+            "review_period_days": None,
+        }
+    )
 
     # Enforcement
-    enforcement: dict[str, Any] = field(default_factory=lambda: {
-        "penalty_monetary_max": None,
-        "penalty_formula": None,
-        "penalty_imprisonment_max": None,
-        "enforcement_authority": None,
-    })
+    enforcement: dict[str, Any] = field(
+        default_factory=lambda: {
+            "penalty_monetary_max": None,
+            "penalty_formula": None,
+            "penalty_imprisonment_max": None,
+            "enforcement_authority": None,
+        }
+    )
 
     # Cross-references
     references: list[dict[str, str]] = field(default_factory=list)
@@ -127,11 +131,13 @@ class RMLDocument:
     governance_layer: int = 5  # 1-7 in the seven-layer stack
 
     # Source information
-    source: dict[str, Any] = field(default_factory=lambda: {
-        "url": None,
-        "hash": None,
-        "retrieved_at": None,
-    })
+    source: dict[str, Any] = field(
+        default_factory=lambda: {
+            "url": None,
+            "hash": None,
+            "retrieved_at": None,
+        }
+    )
 
     # Temporal information
     effective_date: str | None = None
@@ -141,11 +147,13 @@ class RMLDocument:
     requirements: list[RMLRequirement] = field(default_factory=list)
 
     # Statistics
-    statistics: dict[str, Any] = field(default_factory=lambda: {
-        "total_requirements": 0,
-        "by_tier": {"basic": 0, "standard": 0, "advanced": 0},
-        "by_type": {},
-    })
+    statistics: dict[str, Any] = field(
+        default_factory=lambda: {
+            "total_requirements": 0,
+            "by_tier": {"basic": 0, "standard": 0, "advanced": 0},
+            "by_type": {},
+        }
+    )
 
     # Document hash for change detection
     document_hash: str = ""
@@ -185,10 +193,7 @@ class RMLDocument:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "RMLDocument":
         """Create RMLDocument from dictionary."""
-        requirements = [
-            RMLRequirement(**req_data)
-            for req_data in data.get("requirements", [])
-        ]
+        requirements = [RMLRequirement(**req_data) for req_data in data.get("requirements", [])]
 
         return cls(
             schema_version=data.get("schema_version", RMLVersion.V1_0.value),
@@ -261,10 +266,7 @@ class RMLGenerator:
             RMLDocument ready for storage/transmission
         """
         # Convert requirements
-        rml_requirements = [
-            self._convert_requirement(req)
-            for req in regulation.requirements
-        ]
+        rml_requirements = [self._convert_requirement(req) for req in regulation.requirements]
 
         # Compute statistics
         statistics = self._compute_statistics(rml_requirements)
@@ -284,15 +286,9 @@ class RMLGenerator:
                 "retrieved_at": datetime.now(UTC).isoformat(),
             },
             effective_date=(
-                regulation.effective_date.isoformat()
-                if regulation.effective_date
-                else None
+                regulation.effective_date.isoformat() if regulation.effective_date else None
             ),
-            sunset_date=(
-                regulation.sunset_date.isoformat()
-                if regulation.sunset_date
-                else None
-            ),
+            sunset_date=(regulation.sunset_date.isoformat() if regulation.sunset_date else None),
             requirements=rml_requirements,
             statistics=statistics,
             generated_at=datetime.now(UTC).isoformat(),
@@ -331,16 +327,8 @@ class RMLGenerator:
                 "size_thresholds": {},
             },
             temporal={
-                "effective_date": (
-                    req.effective_date.isoformat()
-                    if req.effective_date
-                    else None
-                ),
-                "sunset_date": (
-                    req.sunset_date.isoformat()
-                    if req.sunset_date
-                    else None
-                ),
+                "effective_date": (req.effective_date.isoformat() if req.effective_date else None),
+                "sunset_date": (req.sunset_date.isoformat() if req.sunset_date else None),
                 "review_period_days": None,
             },
             enforcement={
@@ -349,16 +337,9 @@ class RMLGenerator:
                 "penalty_imprisonment_max": req.penalty_imprisonment_max,
                 "enforcement_authority": None,
             },
-            references=[
-                {"type": "depends_on", "target": ref}
-                for ref in req.depends_on
-            ] + [
-                {"type": "conflicts_with", "target": ref}
-                for ref in req.conflicts_with
-            ] + [
-                {"type": "cites", "target": ref}
-                for ref in req.references
-            ],
+            references=[{"type": "depends_on", "target": ref} for ref in req.depends_on]
+            + [{"type": "conflicts_with", "target": ref} for ref in req.conflicts_with]
+            + [{"type": "cites", "target": ref} for ref in req.references],
             metadata={
                 "confidence": req.confidence,
                 "parsing_notes": req.parsing_notes,
@@ -450,19 +431,23 @@ class RMLGenerator:
 
         # Find added requirements
         for req_id in new_ids - old_ids:
-            changes["added_requirements"].append({
-                "id": req_id,
-                "article_ref": new_reqs[req_id].article_ref,
-                "text": new_reqs[req_id].text[:200],
-            })
+            changes["added_requirements"].append(
+                {
+                    "id": req_id,
+                    "article_ref": new_reqs[req_id].article_ref,
+                    "text": new_reqs[req_id].text[:200],
+                }
+            )
 
         # Find removed requirements
         for req_id in old_ids - new_ids:
-            changes["removed_requirements"].append({
-                "id": req_id,
-                "article_ref": old_reqs[req_id].article_ref,
-                "text": old_reqs[req_id].text[:200],
-            })
+            changes["removed_requirements"].append(
+                {
+                    "id": req_id,
+                    "article_ref": old_reqs[req_id].article_ref,
+                    "text": old_reqs[req_id].text[:200],
+                }
+            )
 
         # Find modified requirements
         for req_id in old_ids & new_ids:
@@ -470,16 +455,18 @@ class RMLGenerator:
             new_req = new_reqs[req_id]
 
             if old_req.text != new_req.text:
-                changes["modified_requirements"].append({
-                    "id": req_id,
-                    "article_ref": new_req.article_ref,
-                    "changes": {
-                        "text": {
-                            "old": old_req.text[:200],
-                            "new": new_req.text[:200],
-                        }
-                    },
-                })
+                changes["modified_requirements"].append(
+                    {
+                        "id": req_id,
+                        "article_ref": new_req.article_ref,
+                        "changes": {
+                            "text": {
+                                "old": old_req.text[:200],
+                                "new": new_req.text[:200],
+                            }
+                        },
+                    }
+                )
 
         # Check metadata changes
         if old_doc.name != new_doc.name:
@@ -534,4 +521,3 @@ class RMLGenerator:
                 errors.append(f"Invalid effective_date format: {doc.effective_date}")
 
         return errors
-

@@ -7,7 +7,6 @@ Pydantic models for Neo4j node types in the Compliance Graph.
 Version: 0.1.0
 """
 
-from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
 from typing import Any
@@ -220,7 +219,9 @@ class EntityNode(BaseModel):
 
     # Location
     jurisdiction: str = Field(..., description="Primary jurisdiction")
-    jurisdictions: list[str] = Field(default_factory=list, description="All applicable jurisdictions")
+    jurisdictions: list[str] = Field(
+        default_factory=list, description="All applicable jurisdictions"
+    )
 
     # Classification
     sectors: list[str] = Field(default_factory=list)
@@ -457,4 +458,3 @@ class EvidenceNode(BaseModel):
             props["verified_at"] = self.verified_at.isoformat()
 
         return props
-

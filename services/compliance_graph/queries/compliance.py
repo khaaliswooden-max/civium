@@ -11,10 +11,10 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from services.compliance_graph.schema.nodes import ComplianceStatus
 from shared.database.neo4j import Neo4jClient
 from shared.logging import get_logger
 
-from services.compliance_graph.schema.nodes import ComplianceStatus
 
 logger = get_logger(__name__)
 
@@ -301,7 +301,11 @@ class ComplianceQueryEngine:
 
         # Get gaps
         all_gaps = await self.get_compliance_gaps(entity_id, include_unknown=True)
-        critical_gaps = [g for g in all_gaps if g.tier == "advanced" or (g.penalty_risk and g.penalty_risk > 1000000)]
+        critical_gaps = [
+            g
+            for g in all_gaps
+            if g.tier == "advanced" or (g.penalty_risk and g.penalty_risk > 1000000)
+        ]
 
         # Get score by jurisdiction
         by_jurisdiction: dict[str, ComplianceScore] = {}
@@ -390,8 +394,6 @@ class ComplianceQueryEngine:
         Returns:
             Update result
         """
-        from datetime import UTC
-        import uuid
 
         state_id = f"CS-{entity_id}-{requirement_id}"
 
@@ -433,4 +435,3 @@ class ComplianceQueryEngine:
         )
 
         return result
-

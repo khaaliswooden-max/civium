@@ -22,6 +22,7 @@ from shared.config import settings
 from shared.llm.provider import LLMMessage, LLMProvider, LLMResponse, LLMUsage
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 # Pricing per 1M tokens (as of 2024)
@@ -72,9 +73,7 @@ class ClaudeProvider(LLMProvider):
         return self._model
 
     @retry(
-        retry=retry_if_exception_type(
-            (anthropic.RateLimitError, anthropic.APIConnectionError)
-        ),
+        retry=retry_if_exception_type((anthropic.RateLimitError, anthropic.APIConnectionError)),
         stop=stop_after_attempt(settings.llm.max_retries),
         wait=wait_exponential(multiplier=1, min=2, max=60),
         before_sleep=lambda retry_state: logger.warning(
@@ -231,4 +230,3 @@ class ClaudeProvider(LLMProvider):
         """
         # Use anthropic's token counting
         return await self._client.count_tokens(text)
-

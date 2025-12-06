@@ -23,9 +23,10 @@ from datetime import date
 from enum import Enum
 from typing import Any
 
-from shared.llm import get_llm_provider, LLMMessage
-from shared.logging import get_logger
 from services.regulatory_intelligence.nlp.chunking import Chunk, DocumentChunker
+from shared.llm import LLMMessage, get_llm_provider
+from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -278,16 +279,13 @@ Respond with JSON:
 
         # Extract requirements from each chunk in parallel
         all_requirements: list[ParsedRequirement] = []
-        tasks = [
-            self._parse_chunk(chunk, regulation_id, jurisdiction)
-            for chunk in chunks
-        ]
+        tasks = [self._parse_chunk(chunk, regulation_id, jurisdiction) for chunk in chunks]
 
         chunk_results = await asyncio.gather(*tasks, return_exceptions=True)
 
         for i, result in enumerate(chunk_results):
             if isinstance(result, Exception):
-                parsing_notes.append(f"Chunk {i} failed: {str(result)}")
+                parsing_notes.append(f"Chunk {i} failed: {result!s}")
                 logger.error("chunk_parsing_failed", chunk=i, error=str(result))
             else:
                 all_requirements.extend(result)
@@ -343,17 +341,13 @@ Respond with JSON:
                         article_ref=item.get("article_ref", "Unknown"),
                         regulation_id=regulation_id,
                         natural_language=item.get("text", ""),
-                        requirement_type=RequirementType(
-                            item.get("type", "obligation")
-                        ),
+                        requirement_type=RequirementType(item.get("type", "obligation")),
                         applies_to=item.get("applies_to", []),
                         jurisdictions=[jurisdiction],
                     )
 
                     # Step 2: Classify requirement
-                    classification = await self._classify_requirement(
-                        req.natural_language
-                    )
+                    classification = await self._classify_requirement(req.natural_language)
                     req.tier = ComplianceTier(classification.get("tier", "basic"))
                     req.verification_method = VerificationMethod(
                         classification.get("verification_method", "self_attestation")
@@ -366,9 +360,7 @@ Respond with JSON:
                     # Step 3: Generate formal logic (if enabled)
                     if self.enable_formal_logic:
                         try:
-                            formal = await self._generate_formal_logic(
-                                req.natural_language
-                            )
+                            formal = await self._generate_formal_logic(req.natural_language)
                             req.formal_logic = formal.get("formal_logic")
                         except Exception as e:
                             req.parsing_notes.append(f"Formal logic generation failed: {e}")
@@ -554,4 +546,3 @@ Respond with JSON:
 
         req.confidence = 0.9
         return req
-

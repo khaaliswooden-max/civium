@@ -14,11 +14,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.auth import get_current_user, User
+from shared.auth import User, get_current_user
 from shared.database.postgres import get_postgres_session
 from shared.database.redis import RedisClient
 from shared.logging import get_logger
 from shared.models.compliance import ComplianceScore, ComplianceSummary
+
 
 logger = get_logger(__name__)
 
@@ -283,4 +284,3 @@ async def get_score_history(
     ]
 
     return history
-

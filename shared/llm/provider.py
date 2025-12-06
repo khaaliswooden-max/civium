@@ -13,8 +13,10 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-from shared.config import settings, LLMProvider as LLMProviderEnum
+from shared.config import LLMProvider as LLMProviderEnum
+from shared.config import settings
 from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -246,4 +248,3 @@ def reset_llm_provider() -> None:
     """Reset the provider to be re-initialized on next access."""
     global _provider
     _provider = None
-

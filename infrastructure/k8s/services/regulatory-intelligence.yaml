@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: regulatory-intelligence
+  namespace: civium
+  labels:
+    app: regulatory-intelligence
+    app.kubernetes.io/name: regulatory-intelligence
+    app.kubernetes.io/component: service
+    app.kubernetes.io/part-of: civium
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: regulatory-intelligence
+  template:
+    metadata:
+      labels:
+        app: regulatory-intelligence
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8001"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: regulatory-intelligence
+          image: civium/regulatory-intelligence:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8001
+              name: http
+          envFrom:
+            - configMapRef:
+                name: civium-config
+            - secretRef:
+                name: civium-secrets
+          resources:
+            requests:
+              cpu: "200m"
+              memory: 512Mi
+            limits:
+              cpu: "1000m"
+              memory: 2Gi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: regulatory-intelligence
+  namespace: civium
+  labels:
+    app: regulatory-intelligence
+spec:
+  selector:
+    app: regulatory-intelligence
+  ports:
+    - port: 8001
+      targetPort: 8001
+      name: http
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: regulatory-intelligence-hpa
+  namespace: civium
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: regulatory-intelligence
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+

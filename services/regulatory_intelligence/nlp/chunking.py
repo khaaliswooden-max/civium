@@ -21,6 +21,7 @@ from typing import Any
 
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -256,11 +257,10 @@ class DocumentChunker:
                         sub_chunk.end_char += current_start
                     chunks.extend(sub_chunks)
                     current_start += len(para) + 2
+            elif current_chunk:
+                current_chunk += "\n\n" + para
             else:
-                if current_chunk:
-                    current_chunk += "\n\n" + para
-                else:
-                    current_chunk = para
+                current_chunk = para
 
         # Add final chunk
         if current_chunk:
@@ -508,4 +508,3 @@ class DocumentChunker:
             merged.append(current)
 
         return self._reindex_chunks(merged)
-

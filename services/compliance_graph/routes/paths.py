@@ -9,18 +9,14 @@ Version: 0.1.0
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, Field
-
-from shared.auth import get_current_user, User
-from shared.logging import get_logger
+from fastapi import APIRouter, HTTPException, Query, status
+from pydantic import BaseModel
 
 from services.compliance_graph.queries.paths import (
     PathFinder,
-    DependencyChain,
-    CompliancePath,
-    ConflictPair,
 )
+from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -127,7 +123,7 @@ async def get_dependency_chain(
         logger.error("dependency_chain_failed", requirement_id=requirement_id, error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get dependency chain: {str(e)}",
+            detail=f"Failed to get dependency chain: {e!s}",
         )
 
 
@@ -154,7 +150,7 @@ async def get_dependents(
         logger.error("dependents_failed", requirement_id=requirement_id, error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get dependents: {str(e)}",
+            detail=f"Failed to get dependents: {e!s}",
         )
 
 
@@ -193,7 +189,7 @@ async def get_conflicts(
         logger.error("conflicts_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to find conflicts: {str(e)}",
+            detail=f"Failed to find conflicts: {e!s}",
         )
 
 
@@ -251,7 +247,7 @@ async def get_compliance_path(
         logger.error("compliance_path_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to find compliance path: {str(e)}",
+            detail=f"Failed to find compliance path: {e!s}",
         )
 
 
@@ -295,7 +291,7 @@ async def analyze_impact(
         logger.error("impact_analysis_failed", requirement_id=requirement_id, error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to analyze impact: {str(e)}",
+            detail=f"Failed to analyze impact: {e!s}",
         )
 
 
@@ -328,6 +324,5 @@ async def find_common_ancestors(
         logger.error("common_ancestors_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to find common ancestors: {str(e)}",
+            detail=f"Failed to find common ancestors: {e!s}",
         )
-

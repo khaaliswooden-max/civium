@@ -20,16 +20,15 @@ import re
 from collections.abc import AsyncGenerator
 from datetime import date, timedelta
 from typing import Any
-from xml.etree import ElementTree as ET
 
-from shared.logging import get_logger
 from services.regulatory_intelligence.scrapers.base import (
     BaseScraper,
     DocumentType,
     ScrapedDocument,
-    ScraperConfig,
     SearchResult,
 )
+from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -195,7 +194,7 @@ class EURLexScraper(BaseScraper):
 
                 # Determine document type from CELEX
                 detected_type = DocumentType.REGULATION
-                if "DIR" in doc_type or celex.startswith("3") and "L" in celex:
+                if "DIR" in doc_type or (celex.startswith("3") and "L" in celex):
                     detected_type = DocumentType.DIRECTIVE
                 elif "DEC" in doc_type:
                     detected_type = DocumentType.REGULATION
@@ -370,15 +369,15 @@ class EURLexScraper(BaseScraper):
     def _extract_title(self, html: str) -> str | None:
         """Extract document title from HTML."""
         # Try meta title
-        match = re.search(r'<title>([^<]+)</title>', html, re.I)
+        match = re.search(r"<title>([^<]+)</title>", html, re.I)
         if match:
             title = match.group(1).strip()
             # Clean up common prefixes
-            title = re.sub(r'^EUR-Lex\s*[-–]\s*', '', title)
+            title = re.sub(r"^EUR-Lex\s*[-–]\s*", "", title)
             return title
 
         # Try h1
-        match = re.search(r'<h1[^>]*>([^<]+)</h1>', html, re.I)
+        match = re.search(r"<h1[^>]*>([^<]+)</h1>", html, re.I)
         if match:
             return match.group(1).strip()
 
@@ -388,9 +387,9 @@ class EURLexScraper(BaseScraper):
         """Extract publication date from HTML."""
         # Look for date patterns
         patterns = [
-            r'(\d{1,2})[./](\d{1,2})[./](\d{4})',  # DD/MM/YYYY
-            r'(\d{4})-(\d{2})-(\d{2})',  # YYYY-MM-DD
-            r'(\d{1,2})\s+(\w+)\s+(\d{4})',  # DD Month YYYY
+            r"(\d{1,2})[./](\d{1,2})[./](\d{4})",  # DD/MM/YYYY
+            r"(\d{4})-(\d{2})-(\d{2})",  # YYYY-MM-DD
+            r"(\d{1,2})\s+(\w+)\s+(\d{4})",  # DD Month YYYY
         ]
 
         for pattern in patterns:
@@ -448,4 +447,3 @@ class EURLexScraper(BaseScraper):
         text = re.sub(r"\n{3,}", "\n\n", text)
 
         return text.strip()
-

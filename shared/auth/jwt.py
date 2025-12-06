@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 from shared.config import settings
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -61,15 +62,15 @@ def create_access_token(
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(UTC) + timedelta(
-            minutes=settings.jwt.access_token_expire_minutes
-        )
+        expire = datetime.now(UTC) + timedelta(minutes=settings.jwt.access_token_expire_minutes)
 
-    to_encode.update({
-        "exp": expire,
-        "iat": datetime.now(UTC),
-        "token_type": "access",
-    })
+    to_encode.update(
+        {
+            "exp": expire,
+            "iat": datetime.now(UTC),
+            "token_type": "access",
+        }
+    )
 
     encoded_jwt = jwt.encode(
         to_encode,
@@ -105,15 +106,15 @@ def create_refresh_token(
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(UTC) + timedelta(
-            days=settings.jwt.refresh_token_expire_days
-        )
+        expire = datetime.now(UTC) + timedelta(days=settings.jwt.refresh_token_expire_days)
 
-    to_encode.update({
-        "exp": expire,
-        "iat": datetime.now(UTC),
-        "token_type": "refresh",
-    })
+    to_encode.update(
+        {
+            "exp": expire,
+            "iat": datetime.now(UTC),
+            "token_type": "refresh",
+        }
+    )
 
     encoded_jwt = jwt.encode(
         to_encode,
@@ -207,4 +208,3 @@ def is_token_expired(token_data: TokenData) -> bool:
         bool: True if expired
     """
     return datetime.now(UTC) > token_data.exp
-

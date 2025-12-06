@@ -23,6 +23,7 @@ from sqlalchemy.orm import DeclarativeBase
 from shared.config import settings
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -151,4 +152,3 @@ async def postgres_session() -> AsyncGenerator[AsyncSession, None]:
         except Exception:
             await session.rollback()
             raise
-

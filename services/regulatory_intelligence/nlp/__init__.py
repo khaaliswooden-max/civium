@@ -15,28 +15,29 @@ Modules:
 Version: 0.1.0
 """
 
+from services.regulatory_intelligence.nlp.chunking import (
+    Chunk,
+    ChunkingStrategy,
+    DocumentChunker,
+)
 from services.regulatory_intelligence.nlp.extraction import (
     DocumentExtractor,
     ExtractionResult,
 )
-from services.regulatory_intelligence.nlp.preprocessing import (
-    TextPreprocessor,
-    PreprocessedDocument,
-)
-from services.regulatory_intelligence.nlp.chunking import (
-    DocumentChunker,
-    Chunk,
-    ChunkingStrategy,
-)
 from services.regulatory_intelligence.nlp.parser import (
-    RegulatoryParser,
-    ParsedRequirement,
     ParsedRegulation,
+    ParsedRequirement,
+    RegulatoryParser,
+)
+from services.regulatory_intelligence.nlp.preprocessing import (
+    PreprocessedDocument,
+    TextPreprocessor,
 )
 from services.regulatory_intelligence.nlp.rml import (
-    RMLGenerator,
     RMLDocument,
+    RMLGenerator,
 )
+
 
 __all__ = [
     # Extraction
@@ -57,4 +58,3 @@ __all__ = [
     "RMLGenerator",
     "RMLDocument",
 ]
-

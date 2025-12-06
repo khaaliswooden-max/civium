@@ -18,37 +18,38 @@ Usage:
         hash_password,
         verify_password,
     )
-    
+
     # Hash password for storage
     hashed = hash_password("user_password")
-    
+
     # Verify password
     if verify_password("user_password", hashed):
         token = create_access_token({"sub": user_id, "roles": ["user"]})
-    
+
     # Protect routes
     @app.get("/protected")
     async def protected(user: User = Depends(get_current_user)):
         return {"user": user.email}
-    
+
     @app.get("/admin")
     async def admin(user: User = Depends(require_roles(["admin"]))):
         return {"admin": True}
 """
 
+from shared.auth.dependencies import (
+    get_current_active_user,
+    get_current_user,
+    oauth2_scheme,
+    require_roles,
+)
 from shared.auth.jwt import (
+    TokenData,
     create_access_token,
     create_refresh_token,
     decode_token,
-    TokenData,
 )
 from shared.auth.password import hash_password, verify_password
-from shared.auth.dependencies import (
-    get_current_user,
-    get_current_active_user,
-    require_roles,
-    oauth2_scheme,
-)
+
 
 __all__ = [
     # JWT
@@ -65,4 +66,3 @@ __all__ = [
     "require_roles",
     "oauth2_scheme",
 ]
-

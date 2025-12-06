@@ -13,8 +13,7 @@ Services:
 """
 
 __all__ = [
-    "regulatory_intelligence",
     "compliance_graph",
     "entity_assessment",
+    "regulatory_intelligence",
 ]
-

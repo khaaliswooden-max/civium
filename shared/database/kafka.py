@@ -16,6 +16,7 @@ from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from shared.config import settings
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -27,6 +28,14 @@ class KafkaClient:
     """
 
     _producer: AIOKafkaProducer | None = None
+    _connected: bool = False
+
+    @classmethod
+    async def connect(cls) -> None:
+        """Initialize and connect the Kafka producer."""
+        if not cls._connected:
+            await cls.get_producer()
+            cls._connected = True
 
     @classmethod
     async def get_producer(cls) -> AIOKafkaProducer:
@@ -128,7 +137,7 @@ class KafkaClient:
         value: str | bytes | dict[str, Any],
         key: str | None = None,
         headers: dict[str, str] | None = None,
-    ) -> None:
+    ) -> dict[str, Any]:
         """
         Publish a message to a topic.
 
@@ -137,6 +146,9 @@ class KafkaClient:
             value: Message value (str, bytes, or dict)
             key: Optional message key for partitioning
             headers: Optional message headers
+
+        Returns:
+            Dict with partition and offset information
         """
         import json
 
@@ -151,7 +163,7 @@ class KafkaClient:
         if headers:
             kafka_headers = [(k, v.encode("utf-8")) for k, v in headers.items()]
 
-        await producer.send_and_wait(
+        result = await producer.send_and_wait(
             topic,
             value=value.encode("utf-8") if isinstance(value, str) else value,
             key=key,
@@ -162,7 +174,15 @@ class KafkaClient:
             "kafka_message_published",
             topic=topic,
             key=key,
+            partition=result.partition,
+            offset=result.offset,
         )
+
+        return {
+            "partition": result.partition,
+            "offset": result.offset,
+            "topic": result.topic,
+        }
 
     @classmethod
     async def publish_batch(
@@ -319,4 +339,3 @@ async def consume_messages(
                 )
 
     return count
-

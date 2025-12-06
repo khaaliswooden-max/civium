@@ -13,18 +13,18 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from shared.config import settings
-from shared.logging import get_logger, setup_logging
-from shared.database.mongodb import MongoDBClient
-from shared.database.redis import RedisClient
-from shared.models.common import HealthResponse
-
 from services.regulatory_intelligence.routes import (
-    regulations,
-    requirements,
     ingestion,
     pipeline,
+    regulations,
+    requirements,
 )
+from shared.config import settings
+from shared.database.mongodb import MongoDBClient
+from shared.database.redis import RedisClient
+from shared.logging import get_logger, setup_logging
+from shared.models.common import HealthResponse
+
 
 # Setup logging
 setup_logging(
@@ -111,9 +111,7 @@ async def health_check() -> HealthResponse:
     components["redis"] = redis_health
 
     # Determine overall status
-    all_healthy = all(
-        c.get("status") == "healthy" for c in components.values()
-    )
+    all_healthy = all(c.get("status") == "healthy" for c in components.values())
 
     return HealthResponse(
         status="healthy" if all_healthy else "degraded",
@@ -223,4 +221,3 @@ if __name__ == "__main__":
         reload=settings.debug,
         log_level=settings.log_level.value.lower(),
     )
-

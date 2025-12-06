@@ -126,7 +126,9 @@ class Satisfies(BaseRelationship):
     Links evidence to the requirement it proves compliance for.
     """
 
-    coverage: float = Field(default=1.0, ge=0.0, le=1.0, description="How much of the requirement is satisfied")
+    coverage: float = Field(
+        default=1.0, ge=0.0, le=1.0, description="How much of the requirement is satisfied"
+    )
     verified: bool = False
     verification_method: str | None = None
 
@@ -256,4 +258,3 @@ def delete_relationship_query(
     DELETE r
     RETURN count(r) as deleted
     """
-

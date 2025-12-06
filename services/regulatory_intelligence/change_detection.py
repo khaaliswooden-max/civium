@@ -15,18 +15,18 @@ Version: 0.1.0
 """
 
 import asyncio
-import hashlib
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
 
+from services.regulatory_intelligence.nlp.rml import RMLDocument, RMLGenerator
+from services.regulatory_intelligence.scrapers.base import BaseScraper, DocumentType
 from shared.database.kafka import KafkaClient, Topics
 from shared.database.mongodb import MongoDBClient
 from shared.database.redis import RedisClient
 from shared.logging import get_logger
-from services.regulatory_intelligence.scrapers.base import BaseScraper, DocumentType
-from services.regulatory_intelligence.nlp.rml import RMLDocument, RMLGenerator
+
 
 logger = get_logger(__name__)
 
@@ -374,16 +374,18 @@ class ChangeMonitor:
         )
 
         # Store change in MongoDB
-        await db.regulatory_changes.insert_one({
-            "regulation_id": change.regulation_id,
-            "change_type": change.change_type.value,
-            "severity": change.severity.value,
-            "summary": change.summary,
-            "source": change.source,
-            "source_id": change.source_id,
-            "detected_at": change.detected_at,
-            "notification_sent": False,
-        })
+        await db.regulatory_changes.insert_one(
+            {
+                "regulation_id": change.regulation_id,
+                "change_type": change.change_type.value,
+                "severity": change.severity.value,
+                "summary": change.summary,
+                "source": change.source,
+                "source_id": change.source_id,
+                "detected_at": change.detected_at,
+                "notification_sent": False,
+            }
+        )
 
         # Update hash in cache
         await RedisClient.set_cached(cache_key, doc.content_hash, ttl_seconds=86400 * 30)
@@ -426,8 +428,8 @@ async def run_change_detection_service() -> None:
     This should be run as a background service.
     """
     from services.regulatory_intelligence.scrapers import (
-        FederalRegisterScraper,
         EURLexScraper,
+        FederalRegisterScraper,
     )
 
     # Initialize scrapers
@@ -467,4 +469,3 @@ async def run_change_detection_service() -> None:
         # Clean up scrapers
         for scraper in scrapers.values():
             await scraper.close()
-

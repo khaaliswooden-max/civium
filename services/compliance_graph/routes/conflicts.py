@@ -12,9 +12,10 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
-from shared.auth import get_current_user, User
+from shared.auth import User, get_current_user
 from shared.database.neo4j import Neo4jClient
 from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -131,7 +132,7 @@ async def detect_entity_conflicts(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Query failed: {str(e)}",
+            detail=f"Query failed: {e!s}",
         )
 
 
@@ -185,7 +186,7 @@ async def get_requirement_conflicts(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Query failed: {str(e)}",
+            detail=f"Query failed: {e!s}",
         )
 
 
@@ -254,7 +255,7 @@ async def mark_conflict(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to mark conflict: {str(e)}",
+            detail=f"Failed to mark conflict: {e!s}",
         )
 
 
@@ -294,6 +295,5 @@ async def remove_conflict(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to remove conflict: {str(e)}",
+            detail=f"Failed to remove conflict: {e!s}",
         )
-

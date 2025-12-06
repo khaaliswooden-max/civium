@@ -14,19 +14,17 @@ Score Components:
 Version: 0.1.0
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from decimal import Decimal
 from typing import Any
-import uuid
 
-from sqlalchemy import select, func, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.logging import get_logger
-from services.entity_assessment.models.entity import ComplianceTier
-from services.entity_assessment.models.assessment import ItemStatus
 from services.entity_assessment.models.score import ScoreType
+from shared.logging import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -41,29 +39,35 @@ class ScoreWeights:
     """Weights for score calculation."""
 
     # Tier weights (higher tiers more important)
-    tier_weights: dict[str, float] = field(default_factory=lambda: {
-        "basic": 1.0,
-        "standard": 1.5,
-        "advanced": 2.0,
-    })
+    tier_weights: dict[str, float] = field(
+        default_factory=lambda: {
+            "basic": 1.0,
+            "standard": 1.5,
+            "advanced": 2.0,
+        }
+    )
 
     # Status weights
-    status_weights: dict[str, float] = field(default_factory=lambda: {
-        "compliant": 1.0,
-        "partial": 0.5,
-        "remediation": 0.3,
-        "non_compliant": 0.0,
-        "pending": 0.0,
-        "not_applicable": None,  # Excluded from calculation
-    })
+    status_weights: dict[str, float] = field(
+        default_factory=lambda: {
+            "compliant": 1.0,
+            "partial": 0.5,
+            "remediation": 0.3,
+            "non_compliant": 0.0,
+            "pending": 0.0,
+            "not_applicable": None,  # Excluded from calculation
+        }
+    )
 
     # Risk impact multipliers
-    risk_multipliers: dict[str, float] = field(default_factory=lambda: {
-        "low": 1.0,
-        "medium": 1.2,
-        "high": 1.5,
-        "critical": 2.0,
-    })
+    risk_multipliers: dict[str, float] = field(
+        default_factory=lambda: {
+            "low": 1.0,
+            "medium": 1.2,
+            "high": 1.5,
+            "critical": 2.0,
+        }
+    )
 
 
 @dataclass
@@ -311,9 +315,7 @@ class ScoreService:
             return 0.0
 
         # Compliant + partial (weighted)
-        score = (
-            breakdown.compliant + (breakdown.partial * 0.5)
-        ) / breakdown.total_requirements
+        score = (breakdown.compliant + (breakdown.partial * 0.5)) / breakdown.total_requirements
 
         return min(1.0, max(0.0, score))
 
@@ -543,22 +545,25 @@ class ScoreService:
             )
         """)
 
-        await db.execute(query, {
-            "id": str(uuid.uuid4()),
-            "entity_id": entity_id,
-            "score_type": score_type.value,
-            "scope": scope,
-            "score": score,
-            "previous_score": previous_score,
-            "change": change,
-            "change_percentage": change_pct,
-            "breakdown": breakdown,
-            "assessment_id": assessment_id,
-            "total": total,
-            "compliant": compliant,
-            "non_compliant": non_compliant,
-            "recorded_at": datetime.now(UTC),
-        })
+        await db.execute(
+            query,
+            {
+                "id": str(uuid.uuid4()),
+                "entity_id": entity_id,
+                "score_type": score_type.value,
+                "scope": scope,
+                "score": score,
+                "previous_score": previous_score,
+                "change": change,
+                "change_percentage": change_pct,
+                "breakdown": breakdown,
+                "assessment_id": assessment_id,
+                "total": total,
+                "compliant": compliant,
+                "non_compliant": non_compliant,
+                "recorded_at": datetime.now(UTC),
+            },
+        )
 
     async def _update_entity_scores(
         self,
@@ -581,16 +586,19 @@ class ScoreService:
             WHERE id = :entity_id
         """)
 
-        await db.execute(query, {
-            "entity_id": entity_id,
-            "compliance_score": compliance_score,
-            "risk_score": risk_score,
-            "total": breakdown.total_requirements,
-            "compliant": breakdown.compliant,
-            "non_compliant": breakdown.non_compliant,
-            "pending": breakdown.pending,
-            "updated_at": datetime.now(UTC),
-        })
+        await db.execute(
+            query,
+            {
+                "entity_id": entity_id,
+                "compliance_score": compliance_score,
+                "risk_score": risk_score,
+                "total": breakdown.total_requirements,
+                "compliant": breakdown.compliant,
+                "non_compliant": breakdown.non_compliant,
+                "pending": breakdown.pending,
+                "updated_at": datetime.now(UTC),
+            },
+        )
 
     async def get_score_history(
         self,
@@ -620,11 +628,14 @@ class ScoreService:
             LIMIT :limit
         """)
 
-        result = await db.execute(query, {
-            "entity_id": entity_id,
-            "score_type": score_type.value,
-            "limit": limit,
-        })
+        result = await db.execute(
+            query,
+            {
+                "entity_id": entity_id,
+                "score_type": score_type.value,
+                "limit": limit,
+            },
+        )
 
         return [
             {
@@ -636,4 +647,3 @@ class ScoreService:
             }
             for row in result.fetchall()
         ]
-

@@ -16,6 +16,7 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from shared.config import settings
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -147,4 +148,3 @@ async def mongodb_collection(
     """
     db = MongoDBClient.get_database(database)
     yield db[collection_name]
-

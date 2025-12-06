@@ -14,19 +14,20 @@ Version: 0.1.0
 """
 
 from services.compliance_graph.queries.compliance import (
-    ComplianceQueryEngine,
     ComplianceGap,
+    ComplianceQueryEngine,
     ComplianceReport,
 )
 from services.compliance_graph.queries.paths import (
-    PathFinder,
     CompliancePath,
     DependencyChain,
+    PathFinder,
 )
 from services.compliance_graph.queries.requirements import (
     RequirementQueryEngine,
     RequirementSearchResult,
 )
+
 
 __all__ = [
     # Compliance
@@ -41,4 +42,3 @@ __all__ = [
     "RequirementQueryEngine",
     "RequirementSearchResult",
 ]
-

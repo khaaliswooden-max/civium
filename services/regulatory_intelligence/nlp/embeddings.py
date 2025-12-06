@@ -26,6 +26,7 @@ import httpx
 from shared.config import settings
 from shared.logging import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -578,4 +579,3 @@ class EmbeddingService:
     def clear_cache(self) -> None:
         """Clear the embedding cache."""
         self._cache.clear()
-

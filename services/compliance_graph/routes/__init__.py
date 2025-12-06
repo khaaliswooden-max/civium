@@ -13,12 +13,14 @@ Routes:
 - ingestion: Graph data ingestion
 """
 
-from services.compliance_graph.routes import graph
-from services.compliance_graph.routes import entities
-from services.compliance_graph.routes import conflicts
-from services.compliance_graph.routes import compliance
-from services.compliance_graph.routes import paths
-from services.compliance_graph.routes import ingestion
+from services.compliance_graph.routes import (
+    compliance,
+    conflicts,
+    entities,
+    graph,
+    ingestion,
+    paths,
+)
 
-__all__ = ["graph", "entities", "conflicts", "compliance", "paths", "ingestion"]
 
+__all__ = ["compliance", "conflicts", "entities", "graph", "ingestion", "paths"]
