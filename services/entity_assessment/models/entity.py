@@ -143,7 +143,7 @@ class EntityModel(Base):
     country = Column(String(2))  # ISO 3166-1 alpha-2
 
     # Additional data
-    metadata = Column(JSON, default=dict)
+    entity_metadata = Column("metadata", JSON, default=dict)  # Renamed to avoid SQLAlchemy reserved name
     tags = Column(ARRAY(String(50)), default=list)
     notes = Column(Text)
 

@@ -1934,12 +1934,12 @@ POST /api/v1/warranties/{warranty_id}/claims
 - [x] Core platform architecture
 - [x] Database schema design
 - [x] Shared infrastructure (auth, config, logging)
-- [ ] Threat assessment engine
-- [ ] Identity verification pipeline
-- [ ] Ticket classification model
-- [ ] SLA prediction engine
-- [ ] Blockchain warranty registry
-- [ ] Fraud detection model
+- [x] Threat assessment engine
+- [x] Identity verification pipeline
+- [x] Ticket classification model
+- [x] SLA prediction engine
+- [x] Blockchain warranty registry
+- [x] Fraud detection model
 
 ---
 

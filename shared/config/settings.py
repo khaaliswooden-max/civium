@@ -267,6 +267,10 @@ class ServicePorts(BaseSettings):
     verification: int = Field(default=8004, alias="VERIFICATION_PORT")
     monitoring: int = Field(default=8005, alias="MONITORING_PORT")
     api_gateway: int = Field(default=8000, alias="API_GATEWAY_PORT")
+    # Pro-Visit, Pro-Ticket, Pro-Assure ports
+    visitor: int = Field(default=8010, alias="VISITOR_PORT")
+    ticket: int = Field(default=8011, alias="TICKET_PORT")
+    asset: int = Field(default=8012, alias="ASSET_PORT")
 
 
 class Settings(BaseSettings):
@@ -344,6 +348,27 @@ class Settings(BaseSettings):
     def is_testing(self) -> bool:
         """Check if running in test mode."""
         return self.environment == Environment.TESTING
+
+    # Convenience properties for service ports
+    @property
+    def visitor_port(self) -> int:
+        """Get visitor service port."""
+        return self.ports.visitor
+
+    @property
+    def ticket_port(self) -> int:
+        """Get ticket service port."""
+        return self.ports.ticket
+
+    @property
+    def asset_port(self) -> int:
+        """Get asset service port."""
+        return self.ports.asset
+
+    @property
+    def cors_origins(self) -> str:
+        """Get CORS origins string."""
+        return self.cors.origins
 
 
 @lru_cache

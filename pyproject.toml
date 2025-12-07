@@ -44,6 +44,7 @@ dependencies = [
     # Data Validation
     "pydantic>=2.9.0",
     "pydantic-settings>=2.6.0",
+    "email-validator>=2.1.0",
     
     # Database Clients
     "asyncpg>=0.30.0",  # PostgreSQL async
