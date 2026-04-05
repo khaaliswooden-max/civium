@@ -2,7 +2,6 @@
 Unit tests for authentication module.
 """
 
-import pytest
 from datetime import timedelta
 
 from shared.auth import (
@@ -113,7 +112,7 @@ class TestTokenData:
 
     def test_token_data_required_fields(self) -> None:
         """Test TokenData requires sub and exp."""
-        from datetime import datetime, UTC
+        from datetime import UTC, datetime
 
         token_data = TokenData(
             sub="user123",
@@ -126,7 +125,7 @@ class TestTokenData:
 
     def test_token_data_all_fields(self) -> None:
         """Test TokenData with all fields."""
-        from datetime import datetime, UTC
+        from datetime import UTC, datetime
 
         token_data = TokenData(
             sub="user123",
@@ -140,4 +139,3 @@ class TestTokenData:
         assert token_data.email == "test@example.com"
         assert token_data.entity_id == "entity456"
         assert "admin" in token_data.roles
-

@@ -7,19 +7,18 @@ Tests for RML to Neo4j ingestion.
 Version: 0.1.0
 """
 
-from datetime import date
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from services.compliance_graph.ingestion.rml_ingester import (
-    RMLIngester,
-    IngestionOptions,
-    IngestionResult,
-)
 from services.compliance_graph.ingestion.batch_ingester import (
     BatchIngester,
     BatchResult,
+)
+from services.compliance_graph.ingestion.rml_ingester import (
+    IngestionOptions,
+    IngestionResult,
+    RMLIngester,
 )
 
 
@@ -355,4 +354,3 @@ class TestBatchResult:
         result = BatchResult()
 
         assert result.success_rate == 0.0
-

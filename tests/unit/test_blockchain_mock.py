@@ -4,7 +4,7 @@ Unit tests for mock blockchain client.
 
 import pytest
 
-from shared.blockchain import MockBlockchainClient, AuditRecord
+from shared.blockchain import MockBlockchainClient
 from shared.blockchain.client import AuditEventType, CredentialStatus
 from shared.config import BlockchainMode
 
@@ -222,4 +222,3 @@ class TestMockBlockchainClient:
         assert stats["audit_records"] == 1
         assert stats["dids"] == 1
         assert stats["credentials"] == 0
-

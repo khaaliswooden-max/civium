@@ -345,7 +345,6 @@ class Settings(BaseSettings):
         """Check if running in test mode."""
         return self.environment == Environment.TESTING
 
-
     @property
     def cors_origins(self) -> str:
         """Get CORS origins string."""

@@ -25,6 +25,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -39,6 +40,7 @@ DEFAULT_ITERATIONS = 10
 @dataclass
 class BenchmarkResult:
     """Result of a benchmark run."""
+
     circuit: str
     iterations: int
     min_ms: int
@@ -62,17 +64,17 @@ async def benchmark_threshold(prover: ComplianceProver, iterations: int) -> Benc
     """Benchmark threshold proof generation."""
     times: list[int] = []
     successes = 0
-    
-    print(f"\n{'='*60}")
-    print(f"Benchmarking: compliance_threshold")
+
+    print(f"\n{'=' * 60}")
+    print("Benchmarking: compliance_threshold")
     print(f"Iterations: {iterations}")
-    print(f"{'='*60}")
-    
+    print(f"{'=' * 60}")
+
     for i in range(iterations):
         score = random.randint(7000, 10000)
         threshold = random.randint(5000, score)
         entity_id = f"BENCH-ENTITY-{i:05d}"
-        
+
         try:
             start = time.time()
             proof = await prover.prove_threshold(
@@ -83,13 +85,15 @@ async def benchmark_threshold(prover: ComplianceProver, iterations: int) -> Benc
             duration_ms = int((time.time() - start) * 1000)
             times.append(duration_ms)
             successes += 1
-            
+
             status = "✓" if duration_ms < TARGET_TIME_MS else "✗"
-            print(f"  [{i+1}/{iterations}] {status} {duration_ms}ms (score={score}, threshold={threshold})")
-            
+            print(
+                f"  [{i + 1}/{iterations}] {status} {duration_ms}ms (score={score}, threshold={threshold})"
+            )
+
         except Exception as e:
-            print(f"  [{i+1}/{iterations}] ✗ FAILED: {e}")
-    
+            print(f"  [{i + 1}/{iterations}] ✗ FAILED: {e}")
+
     if not times:
         return BenchmarkResult(
             circuit="compliance_threshold",
@@ -103,7 +107,7 @@ async def benchmark_threshold(prover: ComplianceProver, iterations: int) -> Benc
             success_rate=0,
             pass_target=False,
         )
-    
+
     return BenchmarkResult(
         circuit="compliance_threshold",
         iterations=iterations,
@@ -122,18 +126,18 @@ async def benchmark_range(prover: ComplianceProver, iterations: int) -> Benchmar
     """Benchmark range proof generation."""
     times: list[int] = []
     successes = 0
-    
-    print(f"\n{'='*60}")
-    print(f"Benchmarking: range_proof")
+
+    print(f"\n{'=' * 60}")
+    print("Benchmarking: range_proof")
     print(f"Iterations: {iterations}")
-    print(f"{'='*60}")
-    
+    print(f"{'=' * 60}")
+
     for i in range(iterations):
         min_score = random.randint(0, 5000)
         max_score = random.randint(min_score + 1000, 10000)
         score = random.randint(min_score, max_score)
         entity_id = f"BENCH-ENTITY-{i:05d}"
-        
+
         try:
             start = time.time()
             proof = await prover.prove_range(
@@ -145,13 +149,15 @@ async def benchmark_range(prover: ComplianceProver, iterations: int) -> Benchmar
             duration_ms = int((time.time() - start) * 1000)
             times.append(duration_ms)
             successes += 1
-            
+
             status = "✓" if duration_ms < TARGET_TIME_MS else "✗"
-            print(f"  [{i+1}/{iterations}] {status} {duration_ms}ms (range=[{min_score},{max_score}], score={score})")
-            
+            print(
+                f"  [{i + 1}/{iterations}] {status} {duration_ms}ms (range=[{min_score},{max_score}], score={score})"
+            )
+
         except Exception as e:
-            print(f"  [{i+1}/{iterations}] ✗ FAILED: {e}")
-    
+            print(f"  [{i + 1}/{iterations}] ✗ FAILED: {e}")
+
     if not times:
         return BenchmarkResult(
             circuit="range_proof",
@@ -165,7 +171,7 @@ async def benchmark_range(prover: ComplianceProver, iterations: int) -> Benchmar
             success_rate=0,
             pass_target=False,
         )
-    
+
     return BenchmarkResult(
         circuit="range_proof",
         iterations=iterations,
@@ -184,7 +190,7 @@ async def benchmark_tier(prover: ComplianceProver, iterations: int) -> Benchmark
     """Benchmark tier proof generation."""
     times: list[int] = []
     successes = 0
-    
+
     tier_bounds = {
         1: (9500, 10000),
         2: (8500, 9499),
@@ -192,18 +198,18 @@ async def benchmark_tier(prover: ComplianceProver, iterations: int) -> Benchmark
         4: (5000, 6999),
         5: (0, 4999),
     }
-    
-    print(f"\n{'='*60}")
-    print(f"Benchmarking: tier_membership")
+
+    print(f"\n{'=' * 60}")
+    print("Benchmarking: tier_membership")
     print(f"Iterations: {iterations}")
-    print(f"{'='*60}")
-    
+    print(f"{'=' * 60}")
+
     for i in range(iterations):
         tier = random.randint(1, 5)
         min_score, max_score = tier_bounds[tier]
         score = random.randint(min_score, max_score)
         entity_id = f"BENCH-ENTITY-{i:05d}"
-        
+
         try:
             start = time.time()
             proof = await prover.prove_tier(
@@ -214,13 +220,13 @@ async def benchmark_tier(prover: ComplianceProver, iterations: int) -> Benchmark
             duration_ms = int((time.time() - start) * 1000)
             times.append(duration_ms)
             successes += 1
-            
+
             status = "✓" if duration_ms < TARGET_TIME_MS else "✗"
-            print(f"  [{i+1}/{iterations}] {status} {duration_ms}ms (tier={tier}, score={score})")
-            
+            print(f"  [{i + 1}/{iterations}] {status} {duration_ms}ms (tier={tier}, score={score})")
+
         except Exception as e:
-            print(f"  [{i+1}/{iterations}] ✗ FAILED: {e}")
-    
+            print(f"  [{i + 1}/{iterations}] ✗ FAILED: {e}")
+
     if not times:
         return BenchmarkResult(
             circuit="tier_membership",
@@ -234,7 +240,7 @@ async def benchmark_tier(prover: ComplianceProver, iterations: int) -> Benchmark
             success_rate=0,
             pass_target=False,
         )
-    
+
     return BenchmarkResult(
         circuit="tier_membership",
         iterations=iterations,
@@ -251,53 +257,65 @@ async def benchmark_tier(prover: ComplianceProver, iterations: int) -> Benchmark
 
 def print_results(results: list[BenchmarkResult]) -> bool:
     """Print benchmark results summary."""
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("BENCHMARK SUMMARY")
-    print(f"{'='*70}")
-    
+    print(f"{'=' * 70}")
+
     print(f"\n{'Circuit':<25} | {'P95':>8} | {'Mean':>8} | {'Target':>8} | Status")
     print("-" * 70)
-    
+
     all_pass = True
     for r in results:
         status = "✅ PASS" if r.pass_target else "❌ FAIL"
         if not r.pass_target:
             all_pass = False
-        print(f"{r.circuit:<25} | {r.p95_ms:>6}ms | {r.mean_ms:>6.0f}ms | <{TARGET_TIME_MS}ms | {status}")
-    
+        print(
+            f"{r.circuit:<25} | {r.p95_ms:>6}ms | {r.mean_ms:>6.0f}ms | <{TARGET_TIME_MS}ms | {status}"
+        )
+
     print()
-    
+
     # Detailed stats
     for r in results:
         print(f"\n{r.circuit}:")
         print(f"  Iterations:   {r.iterations}")
-        print(f"  Success rate: {r.success_rate*100:.1f}%")
+        print(f"  Success rate: {r.success_rate * 100:.1f}%")
         print(f"  Min:          {r.min_ms}ms")
         print(f"  Max:          {r.max_ms}ms")
         print(f"  Mean:         {r.mean_ms:.0f}ms")
         print(f"  Median:       {r.median_ms:.0f}ms")
         print(f"  P95:          {r.p95_ms}ms")
         print(f"  P99:          {r.p99_ms}ms")
-    
+
     print()
     return all_pass
 
 
 async def main():
     parser = argparse.ArgumentParser(description="Benchmark ZK-SNARK proof generation")
-    parser.add_argument("--iterations", "-n", type=int, default=DEFAULT_ITERATIONS,
-                       help=f"Number of iterations (default: {DEFAULT_ITERATIONS})")
-    parser.add_argument("--circuit", "-c", type=str, choices=["threshold", "range", "tier"],
-                       help="Benchmark specific circuit only")
+    parser.add_argument(
+        "--iterations",
+        "-n",
+        type=int,
+        default=DEFAULT_ITERATIONS,
+        help=f"Number of iterations (default: {DEFAULT_ITERATIONS})",
+    )
+    parser.add_argument(
+        "--circuit",
+        "-c",
+        type=str,
+        choices=["threshold", "range", "tier"],
+        help="Benchmark specific circuit only",
+    )
     parser.add_argument("--output", "-o", type=str, help="Output JSON file for results")
-    
+
     args = parser.parse_args()
-    
-    print("╔" + "═"*58 + "╗")
+
+    print("╔" + "═" * 58 + "╗")
     print("║  CIVIUM ZK-SNARK BENCHMARK                               ║")
     print(f"║  Target: <{TARGET_TIME_MS}ms proving time                            ║")
-    print("╚" + "═"*58 + "╝")
-    
+    print("╚" + "═" * 58 + "╝")
+
     # Initialize prover
     try:
         prover = ComplianceProver()
@@ -305,22 +323,22 @@ async def main():
         print(f"\n❌ Failed to initialize prover: {e}")
         print("   Make sure circuits are compiled: cd circuits && npm run setup")
         sys.exit(1)
-    
+
     results: list[BenchmarkResult] = []
-    
+
     # Run benchmarks
     if args.circuit is None or args.circuit == "threshold":
         results.append(await benchmark_threshold(prover, args.iterations))
-    
+
     if args.circuit is None or args.circuit == "range":
         results.append(await benchmark_range(prover, args.iterations))
-    
+
     if args.circuit is None or args.circuit == "tier":
         results.append(await benchmark_tier(prover, args.iterations))
-    
+
     # Print summary
     all_pass = print_results(results)
-    
+
     # Save results if requested
     if args.output:
         output_data = {
@@ -343,16 +361,15 @@ async def main():
             ],
             "all_pass": all_pass,
         }
-        
+
         with open(args.output, "w") as f:
             json.dump(output_data, f, indent=2)
-        
+
         print(f"Results saved to: {args.output}")
-    
+
     # Exit with appropriate code
     sys.exit(0 if all_pass else 1)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-

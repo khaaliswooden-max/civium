@@ -1,4 +1,3 @@
 """
 Entity Assessment Service Tests
 """
-

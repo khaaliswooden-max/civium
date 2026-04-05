@@ -9,31 +9,25 @@ Version: 0.1.0
 
 from datetime import date, datetime
 
-import pytest
-
 from services.compliance_graph.schema.nodes import (
-    RequirementNode,
-    RegulationNode,
-    EntityNode,
     ComplianceStateNode,
-    JurisdictionNode,
-    SectorNode,
-    EvidenceNode,
-    ComplianceTier,
-    VerificationMethod,
     ComplianceStatus,
+    ComplianceTier,
+    EntityNode,
     EntityType,
     GovernanceLayer,
+    JurisdictionNode,
+    RegulationNode,
+    RequirementNode,
+    SectorNode,
+    VerificationMethod,
 )
 from services.compliance_graph.schema.relationships import (
-    RelationshipType,
-    BelongsTo,
     AppliesTo,
-    HasState,
-    Satisfies,
-    DependsOn,
+    BelongsTo,
     ConflictsWith,
-    Supersedes,
+    DependsOn,
+    RelationshipType,
     create_relationship_query,
     delete_relationship_query,
 )
@@ -379,4 +373,3 @@ class TestGovernanceLayers:
     def test_all_layers_defined(self) -> None:
         """Test all seven layers are defined."""
         assert len(GovernanceLayer) == 7
-

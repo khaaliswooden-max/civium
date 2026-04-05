@@ -18,35 +18,30 @@ from datetime import date
 
 import pytest
 
+from services.regulatory_intelligence.nlp.chunking import (
+    ChunkingStrategy,
+    DocumentChunker,
+)
 from services.regulatory_intelligence.nlp.extraction import (
     DocumentExtractor,
     DocumentFormat,
     ExtractionResult,
 )
-from services.regulatory_intelligence.nlp.preprocessing import (
-    TextPreprocessor,
-    PreprocessedDocument,
-    Citation,
-    Section,
-)
-from services.regulatory_intelligence.nlp.chunking import (
-    DocumentChunker,
-    ChunkingStrategy,
-    Chunk,
-)
 from services.regulatory_intelligence.nlp.parser import (
-    RegulatoryParser,
-    ParsedRequirement,
-    ParsedRegulation,
-    RequirementType,
     ComplianceTier,
+    ParsedRegulation,
+    ParsedRequirement,
+    RegulatoryParser,
+    RequirementType,
     VerificationMethod,
 )
+from services.regulatory_intelligence.nlp.preprocessing import (
+    PreprocessedDocument,
+    TextPreprocessor,
+)
 from services.regulatory_intelligence.nlp.rml import (
-    RMLGenerator,
     RMLDocument,
-    RMLRequirement,
-    RMLVersion,
+    RMLGenerator,
 )
 
 
@@ -735,4 +730,3 @@ class TestNLPPipelineIntegration:
         all_text = " ".join(c.content for c in chunks)
         assert "personal data" in all_text.lower()
         assert "administrative fines" in all_text.lower()
-

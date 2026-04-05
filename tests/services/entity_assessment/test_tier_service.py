@@ -10,11 +10,10 @@ Version: 0.1.0
 import pytest
 
 from services.entity_assessment.services.tier import (
-    TierService,
-    TierCriteria,
-    TierRecommendation,
     ComplianceTier,
     RiskLevel,
+    TierCriteria,
+    TierService,
 )
 
 
@@ -125,9 +124,7 @@ class TestTierDetermination:
 class TestSizeBasedTier:
     """Tests for size-based tier determination."""
 
-    def test_large_employee_count_triggers_advanced(
-        self, tier_service: TierService
-    ) -> None:
+    def test_large_employee_count_triggers_advanced(self, tier_service: TierService) -> None:
         """Large employee count triggers ADVANCED tier."""
         recommendation = tier_service.determine_tier(
             entity_type="corporation",
@@ -182,9 +179,7 @@ class TestSizeBasedTier:
 class TestJurisdictionBasedTier:
     """Tests for jurisdiction-based tier determination."""
 
-    def test_multi_jurisdiction_triggers_standard(
-        self, tier_service: TierService
-    ) -> None:
+    def test_multi_jurisdiction_triggers_standard(self, tier_service: TierService) -> None:
         """Multiple jurisdictions trigger at least STANDARD tier."""
         recommendation = tier_service.determine_tier(
             entity_type="sme",
@@ -200,9 +195,7 @@ class TestJurisdictionBasedTier:
         assert len(factors) == 1
         assert factors[0]["count"] == 4
 
-    def test_regulated_jurisdictions_trigger_upgrade(
-        self, tier_service: TierService
-    ) -> None:
+    def test_regulated_jurisdictions_trigger_upgrade(self, tier_service: TierService) -> None:
         """Presence in regulated jurisdictions triggers tier upgrade."""
         recommendation = tier_service.determine_tier(
             entity_type="sme",
@@ -225,9 +218,7 @@ class TestJurisdictionBasedTier:
 class TestRiskFactors:
     """Tests for risk factor evaluation."""
 
-    def test_high_risk_factors_trigger_advanced(
-        self, tier_service: TierService
-    ) -> None:
+    def test_high_risk_factors_trigger_advanced(self, tier_service: TierService) -> None:
         """High risk factors push toward ADVANCED tier."""
         recommendation = tier_service.determine_tier(
             entity_type="sme",
@@ -486,9 +477,7 @@ class TestCustomCriteria:
         assert len(factors) == 1
         assert "Large entity" in factors[0]["reason"]
 
-    def test_custom_jurisdiction_threshold(
-        self, custom_tier_service: TierService
-    ) -> None:
+    def test_custom_jurisdiction_threshold(self, custom_tier_service: TierService) -> None:
         """Custom jurisdiction threshold works correctly."""
         # With custom threshold of 2, 3 jurisdictions should trigger upgrade
         recommendation = custom_tier_service.determine_tier(
@@ -564,4 +553,3 @@ class TestEdgeCases:
 
         # Should still detect as regulated sector
         assert recommendation.recommended_tier == ComplianceTier.ADVANCED
-

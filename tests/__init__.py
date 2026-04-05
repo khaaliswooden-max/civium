@@ -13,4 +13,3 @@ Run tests:
     pytest -m "not integration"     # Skip integration tests
     pytest --cov=shared            # With coverage
 """
-

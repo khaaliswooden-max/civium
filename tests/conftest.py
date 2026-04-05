@@ -13,6 +13,7 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
+
 # Set test environment
 os.environ["ENVIRONMENT"] = "testing"
 os.environ["BLOCKCHAIN_MODE"] = "mock"
@@ -108,10 +109,11 @@ def auth_headers() -> dict[str, str]:
     """Generate test authentication headers."""
     from shared.auth import create_access_token
 
-    token = create_access_token({
-        "sub": "test-user-id",
-        "email": "test@civium.io",
-        "roles": ["user", "admin"],
-    })
+    token = create_access_token(
+        {
+            "sub": "test-user-id",
+            "email": "test@civium.io",
+            "roles": ["user", "admin"],
+        }
+    )
     return {"Authorization": f"Bearer {token}"}
-

@@ -7,16 +7,17 @@ Tests for the compliance score calculation service.
 Version: 0.1.0
 """
 
+from datetime import UTC, datetime
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from datetime import datetime, UTC
-from unittest.mock import AsyncMock, MagicMock, patch
 
 from services.entity_assessment.services.score import (
-    ScoreService,
-    ScoreWeights,
     ScoreBreakdown,
     ScoreResult,
+    ScoreService,
     ScoreType,
+    ScoreWeights,
 )
 
 
@@ -118,11 +119,36 @@ def all_compliant_items() -> list[dict]:
 def mixed_tier_items() -> list[dict]:
     """Items with different tiers."""
     return [
-        {"requirement_id": "basic-1", "status": "compliant", "requirement_tier": "basic", "risk_impact": "low"},
-        {"requirement_id": "basic-2", "status": "compliant", "requirement_tier": "basic", "risk_impact": "low"},
-        {"requirement_id": "standard-1", "status": "compliant", "requirement_tier": "standard", "risk_impact": "medium"},
-        {"requirement_id": "standard-2", "status": "non_compliant", "requirement_tier": "standard", "risk_impact": "medium"},
-        {"requirement_id": "advanced-1", "status": "non_compliant", "requirement_tier": "advanced", "risk_impact": "high"},
+        {
+            "requirement_id": "basic-1",
+            "status": "compliant",
+            "requirement_tier": "basic",
+            "risk_impact": "low",
+        },
+        {
+            "requirement_id": "basic-2",
+            "status": "compliant",
+            "requirement_tier": "basic",
+            "risk_impact": "low",
+        },
+        {
+            "requirement_id": "standard-1",
+            "status": "compliant",
+            "requirement_tier": "standard",
+            "risk_impact": "medium",
+        },
+        {
+            "requirement_id": "standard-2",
+            "status": "non_compliant",
+            "requirement_tier": "standard",
+            "risk_impact": "medium",
+        },
+        {
+            "requirement_id": "advanced-1",
+            "status": "non_compliant",
+            "requirement_tier": "advanced",
+            "risk_impact": "high",
+        },
     ]
 
 
@@ -204,8 +230,18 @@ class TestSimpleScore:
     def test_zero_score(self, score_service: ScoreService) -> None:
         """All non-compliant items result in zero score."""
         items = [
-            {"requirement_id": "req-1", "status": "non_compliant", "requirement_tier": "basic", "risk_impact": "low"},
-            {"requirement_id": "req-2", "status": "non_compliant", "requirement_tier": "basic", "risk_impact": "low"},
+            {
+                "requirement_id": "req-1",
+                "status": "non_compliant",
+                "requirement_tier": "basic",
+                "risk_impact": "low",
+            },
+            {
+                "requirement_id": "req-2",
+                "status": "non_compliant",
+                "requirement_tier": "basic",
+                "risk_impact": "low",
+            },
         ]
 
         breakdown = score_service._calculate_breakdown(items)
@@ -316,7 +352,11 @@ class TestRiskAdjustedScore:
         """High risk non-compliance has bigger impact."""
         items = [
             {"requirement_id": "req-1", "status": "compliant", "risk_impact": "low"},  # weight 1.0
-            {"requirement_id": "req-2", "status": "non_compliant", "risk_impact": "high"},  # weight 1.5
+            {
+                "requirement_id": "req-2",
+                "status": "non_compliant",
+                "risk_impact": "high",
+            },  # weight 1.5
         ]
 
         score = score_service._calculate_risk_adjusted_score(items)
@@ -335,7 +375,11 @@ class TestRiskAdjustedScore:
         items = [
             {"requirement_id": "req-1", "status": "compliant", "risk_impact": "low"},  # weight 1.0
             {"requirement_id": "req-2", "status": "compliant", "risk_impact": "low"},  # weight 1.0
-            {"requirement_id": "req-3", "status": "non_compliant", "risk_impact": "critical"},  # weight 2.0
+            {
+                "requirement_id": "req-3",
+                "status": "non_compliant",
+                "risk_impact": "critical",
+            },  # weight 2.0
         ]
 
         score = score_service._calculate_risk_adjusted_score(items)
@@ -413,7 +457,9 @@ class TestScoreResult:
         """Calculate complete entity score."""
         # Mock database session
         mock_db = AsyncMock()
-        mock_db.execute = AsyncMock(return_value=MagicMock(fetchall=lambda: [], fetchone=lambda: None))
+        mock_db.execute = AsyncMock(
+            return_value=MagicMock(fetchall=lambda: [], fetchone=lambda: None)
+        )
 
         result = await score_service.calculate_entity_score(
             db=mock_db,
@@ -579,4 +625,3 @@ class TestScoreEdgeCases:
         # Unknown status doesn't increment any counter but adds to total
         assert breakdown.total_requirements == 1
         assert breakdown.compliant == 0
-

@@ -19,10 +19,12 @@ import asyncio
 import sys
 from pathlib import Path
 
+
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from shared.logging import get_logger, setup_logging
+
 
 setup_logging(log_level="INFO", json_logs=False, service_name="init-db")
 logger = get_logger(__name__)
@@ -31,8 +33,8 @@ logger = get_logger(__name__)
 async def init_postgres() -> bool:
     """Initialize PostgreSQL database."""
     from sqlalchemy import text
+
     from shared.database.postgres import PostgresClient
-    from shared.config import settings
 
     logger.info("Initializing PostgreSQL...")
 
@@ -158,7 +160,6 @@ async def init_influxdb() -> bool:
 
     try:
         from influxdb_client import InfluxDBClient
-        from influxdb_client.client.write_api import SYNCHRONOUS
 
         client = InfluxDBClient(
             url=settings.influxdb.url,
@@ -184,7 +185,7 @@ async def init_influxdb() -> bool:
 
 async def init_kafka() -> bool:
     """Verify Kafka connection and create topics if needed."""
-    from shared.database.kafka import KafkaClient, Topics
+    from shared.database.kafka import KafkaClient
 
     logger.info("Initializing Kafka...")
 
@@ -192,8 +193,7 @@ async def init_kafka() -> bool:
         health = await KafkaClient.health_check()
         if health.get("status") == "healthy":
             logger.info(
-                f"Kafka connected: {health['brokers']} broker(s), "
-                f"{health['topics']} topic(s)"
+                f"Kafka connected: {health['brokers']} broker(s), {health['topics']} topic(s)"
             )
             return True
 
@@ -304,4 +304,3 @@ if __name__ == "__main__":
     args = parse_args()
     exit_code = asyncio.run(main(args))
     sys.exit(exit_code)
-

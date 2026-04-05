@@ -7,13 +7,11 @@ Tests for entity management API endpoints.
 Version: 0.1.0
 """
 
-import pytest
-from datetime import datetime, UTC
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import UTC, datetime
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
-from fastapi import status
-from fastapi.testclient import TestClient
+import pytest
 
 from services.entity_assessment.services.tier import ComplianceTier
 
@@ -205,7 +203,7 @@ class TestEntitySummary:
 
     def test_entity_summary_creation(self):
         """Entity summary model creation."""
-        from shared.models.entity import EntitySummary, ComplianceTier
+        from shared.models.entity import ComplianceTier, EntitySummary
 
         summary = EntitySummary(
             id="123",
@@ -326,13 +324,12 @@ class TestEntityRouteIntegration:
     @pytest.mark.asyncio
     async def test_get_entity_not_found(self, mock_db_session):
         """Get entity returns 404 when not found."""
-        from services.entity_assessment.routes.entities import get_entity
         from fastapi import HTTPException
 
+        from services.entity_assessment.routes.entities import get_entity
+
         # Mock no result
-        mock_db_session.execute = AsyncMock(
-            return_value=MagicMock(fetchone=lambda: None)
-        )
+        mock_db_session.execute = AsyncMock(return_value=MagicMock(fetchone=lambda: None))
 
         with pytest.raises(HTTPException) as exc_info:
             await get_entity(entity_id="nonexistent", db=mock_db_session)
@@ -426,9 +423,7 @@ class TestSoftDelete:
         from shared.auth import User
 
         # Mock successful delete
-        mock_db_session.execute = AsyncMock(
-            return_value=MagicMock(rowcount=1)
-        )
+        mock_db_session.execute = AsyncMock(return_value=MagicMock(rowcount=1))
 
         mock_user = User(id="user-123", email="test@example.com")
 
@@ -445,14 +440,13 @@ class TestSoftDelete:
     @pytest.mark.asyncio
     async def test_delete_not_found(self, mock_db_session):
         """Delete returns 404 when entity not found."""
-        from services.entity_assessment.routes.entities import delete_entity
-        from shared.auth import User
         from fastapi import HTTPException
 
+        from services.entity_assessment.routes.entities import delete_entity
+        from shared.auth import User
+
         # Mock no rows affected
-        mock_db_session.execute = AsyncMock(
-            return_value=MagicMock(rowcount=0)
-        )
+        mock_db_session.execute = AsyncMock(return_value=MagicMock(rowcount=0))
 
         mock_user = User(id="user-123", email="test@example.com")
 
@@ -500,4 +494,3 @@ class TestPagination:
         pages = (total + page_size - 1) // page_size if total > 0 else 1
 
         assert pages == 1
-

@@ -10,25 +10,23 @@ Tests for:
 Version: 0.1.0
 """
 
-from datetime import date, datetime
+from datetime import date
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from services.regulatory_intelligence.scrapers.base import (
-    BaseScraper,
     DocumentType,
     ScrapedDocument,
     ScraperConfig,
-    SearchResult,
-)
-from services.regulatory_intelligence.scrapers.federal_register import (
-    FederalRegisterScraper,
-    FR_TYPE_MAP,
 )
 from services.regulatory_intelligence.scrapers.eurlex import (
-    EURLexScraper,
     EURLEX_TYPE_MAP,
+    EURLexScraper,
+)
+from services.regulatory_intelligence.scrapers.federal_register import (
+    FR_TYPE_MAP,
+    FederalRegisterScraper,
 )
 
 
@@ -434,4 +432,3 @@ class TestDocumentTypeMappings:
         """Test EUR-Lex type mapping."""
         assert EURLEX_TYPE_MAP["REG"] == DocumentType.REGULATION
         assert EURLEX_TYPE_MAP["DIR"] == DocumentType.DIRECTIVE
-
