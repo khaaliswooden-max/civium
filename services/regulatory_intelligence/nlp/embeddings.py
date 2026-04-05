@@ -56,7 +56,7 @@ class EmbeddingResult:
     def __post_init__(self) -> None:
         """Compute derived fields."""
         if not self.text_hash:
-            self.text_hash = hashlib.md5(self.text.encode()).hexdigest()
+            self.text_hash = hashlib.md5(self.text.encode(), usedforsecurity=False).hexdigest()
         if not self.dimensions:
             self.dimensions = len(self.embedding)
 
@@ -414,7 +414,7 @@ class EmbeddingService:
         Returns:
             EmbeddingResult with vector
         """
-        text_hash = hashlib.md5(text.encode()).hexdigest()
+        text_hash = hashlib.md5(text.encode(), usedforsecurity=False).hexdigest()
 
         # Check cache
         if self.cache_enabled and text_hash in self._cache:
@@ -467,7 +467,7 @@ class EmbeddingService:
             batch_results: list[EmbeddingResult | None] = [None] * len(batch)
 
             for j, text in enumerate(batch):
-                text_hash = hashlib.md5(text.encode()).hexdigest()
+                text_hash = hashlib.md5(text.encode(), usedforsecurity=False).hexdigest()
                 if self.cache_enabled and text_hash in self._cache:
                     batch_results[j] = EmbeddingResult(
                         text=text,
@@ -485,7 +485,7 @@ class EmbeddingService:
                 embeddings = await self.provider.embed_batch(list(texts_to_embed))
 
                 for idx, (j, text) in enumerate(to_embed):
-                    text_hash = hashlib.md5(text.encode()).hexdigest()
+                    text_hash = hashlib.md5(text.encode(), usedforsecurity=False).hexdigest()
                     embedding = embeddings[idx]
 
                     if self.cache_enabled:

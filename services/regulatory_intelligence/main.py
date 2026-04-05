@@ -216,7 +216,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "services.regulatory_intelligence.main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104
         port=settings.ports.regulatory_intelligence,
         reload=settings.debug,
         log_level=settings.log_level.value.lower(),

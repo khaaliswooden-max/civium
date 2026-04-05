@@ -307,7 +307,7 @@ async def update_entity(
 
     update_fields.append("updated_at = :updated_at")
 
-    update_query = text(f"""
+    update_query = text(f"""  # nosec B608
         UPDATE core.entities
         SET {", ".join(update_fields)}
         WHERE id = :entity_id

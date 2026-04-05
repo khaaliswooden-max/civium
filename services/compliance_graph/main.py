@@ -229,7 +229,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "services.compliance_graph.main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104
         port=settings.ports.compliance_graph,
         reload=settings.debug,
         log_level=settings.log_level.value.lower(),

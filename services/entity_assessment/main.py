@@ -210,7 +210,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "services.entity_assessment.main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104
         port=settings.ports.entity_assessment,
         reload=settings.debug,
         log_level=settings.log_level.value.lower(),

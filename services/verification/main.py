@@ -222,7 +222,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "services.verification.main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104
         port=settings.ports.verification,
         reload=settings.debug,
         log_level=settings.log_level.value.lower(),

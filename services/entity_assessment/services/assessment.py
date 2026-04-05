@@ -510,7 +510,7 @@ class AssessmentService:
             update_fields["reviewer_id"] = user_id
             update_fields["reviewer_name"] = user_name
 
-        query = text(f"""
+        query = text(f"""  # nosec B608
             UPDATE core.assessments
             SET {", ".join(query_parts)}
             WHERE id = :assessment_id

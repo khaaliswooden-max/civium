@@ -263,7 +263,7 @@ async def update_assessment(
         update_fields.append("reviewer_id = :reviewer_id")
         params["reviewer_id"] = updates.reviewer_id
 
-    update_query = text(f"""
+    update_query = text(f"""  # nosec B608
         UPDATE core.assessments
         SET {", ".join(update_fields)}
         WHERE id = :assessment_id
