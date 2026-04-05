@@ -307,12 +307,8 @@ async def update_entity(
 
     update_fields.append("updated_at = :updated_at")
 
-    update_query = text(f"""  # nosec B608
-        UPDATE core.entities
-        SET {", ".join(update_fields)}
-        WHERE id = :entity_id
-        RETURNING *
-    """)
+    _sql = "UPDATE core.entities SET " + ", ".join(update_fields) + " WHERE id = :entity_id RETURNING *"  # nosec
+    update_query = text(_sql)
 
     result = await db.execute(update_query, params)
     row = result.fetchone()

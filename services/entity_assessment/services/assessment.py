@@ -510,11 +510,8 @@ class AssessmentService:
             update_fields["reviewer_id"] = user_id
             update_fields["reviewer_name"] = user_name
 
-        query = text(f"""  # nosec B608
-            UPDATE core.assessments
-            SET {", ".join(query_parts)}
-            WHERE id = :assessment_id
-        """)
+        _sql = "UPDATE core.assessments SET " + ", ".join(query_parts) + " WHERE id = :assessment_id"  # nosec
+        query = text(_sql)
 
         await db.execute(query, update_fields)
 

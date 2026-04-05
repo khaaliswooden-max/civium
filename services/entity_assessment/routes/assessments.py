@@ -263,12 +263,8 @@ async def update_assessment(
         update_fields.append("reviewer_id = :reviewer_id")
         params["reviewer_id"] = updates.reviewer_id
 
-    update_query = text(f"""  # nosec B608
-        UPDATE core.assessments
-        SET {", ".join(update_fields)}
-        WHERE id = :assessment_id
-        RETURNING *
-    """)
+    _sql = "UPDATE core.assessments SET " + ", ".join(update_fields) + " WHERE id = :assessment_id RETURNING *"  # nosec
+    update_query = text(_sql)
 
     result = await db.execute(update_query, params)
     row = result.fetchone()

@@ -128,9 +128,7 @@ jobs:
         run: pip install bandit[toml]
 
       - name: Run security scan
-        # B101: assert statements (test code) — skipped
-        # B608: SQLAlchemy text() with parameterized queries — false positive
-        run: bandit -r shared services -ll --skip B101,B608
+        run: bandit -r shared services -ll --skip B101
 
   build:
     name: Build Check

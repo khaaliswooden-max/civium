@@ -288,6 +288,11 @@ markers = [
     "slow: Slow-running tests",
     "blockchain: Tests requiring blockchain connection",
 ]
+
+[tool.bandit]
+# B101: assert statements — common in test helpers
+# B608: SQLAlchemy text() with parameterized queries — false positive (params passed separately)
+skips = ["B101", "B608"]
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]
