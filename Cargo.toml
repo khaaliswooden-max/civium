@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "programs/civium",
-    "crates/zk-prover",
+    # "crates/zk-prover",  # excluded from anchor build (poseidon-rs 0.1 not on crates.io)
 ]
 resolver = "2"
 
